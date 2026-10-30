@@ -27,13 +27,32 @@ def get_live_status(site_settings):
         return {'is_open': True, 'status_text': 'هم‌اکنون باز است', 'open_time': '08:00', 'close_time': '23:00'}
 
 def landing_view(request):
-    site_settings, _ = SiteSettings.objects.get_or_create(id=1)
-    categories = MenuCategory.objects.filter(is_active=True).prefetch_related('items')
-    featured_menu_items = MenuItem.objects.filter(is_active=True, is_featured=True)[:6]
-    featured_products = Product.objects.filter(is_active=True, is_featured=True)[:4]
+    try:
+        site_settings, _ = SiteSettings.objects.get_or_create(id=1)
+    except Exception:
+        site_settings = None
+
+    try:
+        categories = MenuCategory.objects.filter(is_active=True).prefetch_related('items')
+    except Exception:
+        categories = []
+
+    try:
+        featured_menu_items = MenuItem.objects.filter(is_active=True, is_featured=True)[:6]
+    except Exception:
+        featured_menu_items = []
+
+    try:
+        featured_products = Product.objects.filter(is_active=True, is_featured=True)[:4]
+    except Exception:
+        featured_products = []
     
-    live_status = get_live_status(site_settings)
-    coupons = LuckyWheelCoupon.objects.filter(is_active=True)
+    live_status = get_live_status(site_settings) if site_settings else {'is_open': True, 'status_text': 'هم‌اکنون باز است', 'open_time': '08:00', 'close_time': '23:00'}
+    
+    try:
+        coupons = LuckyWheelCoupon.objects.filter(is_active=True)
+    except Exception:
+        coupons = []
 
     context = {
         'site_settings': site_settings,
