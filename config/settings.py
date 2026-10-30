@@ -18,22 +18,16 @@ SECRET_KEY = os.environ.get(
 # در production باید False باشه؛ از environment variable خونده می‌شه
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = [
-    # SmarterASP
-    'aminm1-002-site1.htempurl.com',
-    '.htempurl.com',
-    # Railway
-    '.railway.app',
-    '.up.railway.app',
-    # Local
-    'localhost',
-    '127.0.0.1',
+ALLOWED_HOSTS = ['*']
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.railway.app',
+    'https://*.up.railway.app',
+    'https://*.htempurl.com',
+    'http://*.htempurl.com',
 ]
 
-# اگه Railway دامنه سفارشی‌ای از env بده، اضافه کن
-_railway_host = os.environ.get('RAILWAY_PUBLIC_DOMAIN')
-if _railway_host:
-    ALLOWED_HOSTS.append(_railway_host)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 INSTALLED_APPS = [
     'jazzmin',   # modern themed admin — must sit above django.contrib.admin
