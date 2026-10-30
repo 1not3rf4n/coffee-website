@@ -15,8 +15,8 @@ SECRET_KEY = os.environ.get(
     'django-insecure-coffee-luxury-secret-key-antigravity-mode'  # فقط برای dev
 )
 
-# در production باید False باشه؛ از environment variable خونده می‌شه
-DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
+# در حین بالا آوردن اولیه True می‌ذاریم تا خطاهای احتمالی لاگ بشن
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -120,6 +120,27 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
 
 # ---------------------------------------------------------------------------
 # Production Security Headers
