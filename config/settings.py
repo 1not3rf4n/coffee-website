@@ -1,4 +1,6 @@
 import os
+import shutil
+import tempfile
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -82,12 +84,31 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+# ---------------------------------------------------------------------------
+# Database Configuration — سازگار با سرورهای Read-Only
+# ---------------------------------------------------------------------------
+ORIGINAL_DB = BASE_DIR / 'db.sqlite3'
+TMP_DIR = Path(tempfile.gettempdir())
+WRITABLE_DB = TMP_DIR / 'cafeerfan_db.sqlite3'
+
+if ORIGINAL_DB.exists():
+    try:
+        if not WRITABLE_DB.exists() or WRITABLE_DB.stat().st_size == 0:
+            shutil.copy2(ORIGINAL_DB, WRITABLE_DB)
+    except Exception:
+        pass
+
+DB_PATH = WRITABLE_DB if WRITABLE_DB.exists() else ORIGINAL_DB
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DB_PATH,
     }
 }
+
+# جلسات (Sessions) مبتنی بر کوکی امن بدون نیاز به نوشتن دیتابیس
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -112,14 +133,16 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATIC_ROOT.mkdir(parents=True, exist_ok=True)
 
 # WhiteNoise — فشرده‌سازی و cache فایل‌های استاتیک در production
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
+MEDIA_ROOT = TMP_DIR / 'media'
+try:
+    MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
