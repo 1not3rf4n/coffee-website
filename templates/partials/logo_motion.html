@@ -1,0 +1,53 @@
+{% load static %}
+{% comment %}
+    Coffee-fill logo intro (GSAP + CSS mask).
+
+    The brand mark is applied as an alpha MASK to each .lm-mask layer via
+    the inline --lm-logo custom property below, so espresso, crema and the
+    light sweep are all clipped to the exact logo silhouette. Edges stay
+    razor-sharp because nothing is redrawn — the real artwork is the mask.
+
+    The inline boot script locks the page before first paint. The intro
+    plays on every page load (the owner wants it shown each refresh).
+{% endcomment %}
+
+<script>
+    (function () {
+        // Always play on load. ?intro=freeze:N is still honoured by the engine.
+        document.documentElement.classList.add('lm-playing');
+    })();
+</script>
+
+<div id="lmOverlay" class="lm-overlay"
+     role="img"
+     aria-label="{{ site_settings.site_name }} — {{ site_settings.tagline }}"
+     style="--lm-logo: url('{% if site_settings.logo_image %}{{ site_settings.logo_image.url }}{% else %}{% static 'img/logo-mark.png' %}{% endif %}');">
+
+    <div class="lm-glow"></div>
+
+    <div class="lm-stage">
+        <div class="lm-logo-wrap">
+            <!-- Masked layers: all clip to the logo silhouette -->
+            <div class="lm-mask lm-ghost"></div>
+            <div class="lm-mask lm-coffee"></div>
+            <div class="lm-mask lm-crema"></div>
+            <div class="lm-mask lm-shine"></div>
+        </div>
+
+        <div class="lm-word">
+            <div class="lm-word-name">{{ site_settings.logo_text|default:site_settings.site_name }}</div>
+            <div class="lm-word-rule"></div>
+            {% if site_settings.tagline %}
+            <div class="lm-word-tag">{{ site_settings.tagline }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <button type="button" class="lm-skip" aria-label="رد کردن انیمیشن و ورود به سایت">
+        <i class="fa-solid fa-forward"></i>
+        <span>رد کردن</span>
+    </button>
+
+    <div class="lm-progress"></div>
+</div>
+

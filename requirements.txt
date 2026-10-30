@@ -1,0 +1,24 @@
+# ───────────────────────────────────────────────
+#  نوین کافه — وابستگی‌های پروژه Django
+#  برای دیپلوی روی SmarterASP.NET
+# ───────────────────────────────────────────────
+
+# Core Django
+Django==5.2.8
+asgiref==3.10.0
+sqlparse==0.5.3
+
+# Admin Theme
+django-jazzmin==3.0.5
+
+# Static Files (production)
+whitenoise==6.9.0
+
+# Image Processing
+Pillow==12.2.0
+
+# Environment Variables
+python-dotenv==1.1.0
+
+# Timezone support
+tzdata==2025.2

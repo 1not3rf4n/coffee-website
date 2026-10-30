@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}پرداخت ناموفق | {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 8rem;">
+    <div class="glass-card" style="max-width: 550px; margin: 0 auto; padding: 2.5rem; text-align: center;">
+        <i class="fa-solid fa-circle-xmark" style="font-size: 4rem; color: #EF5350; margin-bottom: 1rem;"></i>
+        <h2 style="color: #FFF; margin-bottom: 0.5rem;">پرداخت ناموفق یا لغو شد</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">عملیات پرداخت سفارش {{ order.order_number }} تکمیل نگردید.</p>
+
+        <a href="{% url 'cart:detail' %}" class="btn btn-primary">بازگشت به سبد خرید و تلاش مجدد</a>
+    </div>
+</section>
+{% endblock %}

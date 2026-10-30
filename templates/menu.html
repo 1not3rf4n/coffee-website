@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}منوی کافه {{ site_settings.site_name }} | سفارش و مشاهده حضوری{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 8rem;">
+    <div class="section-header">
+        <div class="section-tag">منوی حضوری و آنلاین کافه</div>
+        <h2 class="section-title">لیست کامل نوشیدنی‌ها، کیک‌ها و میان‌وعده‌ها</h2>
+        
+        <!-- TABLE NUMBER BADGE -->
+        {% if table_num %}
+        <div style="margin-top: 1rem; display: inline-block; background: rgba(255, 152, 0, 0.15); border: 1px solid var(--primary-glow); padding: 6px 18px; border-radius: 50px; color: var(--primary-glow); font-weight: 700;">
+            <i class="fa-solid fa-chair"></i> در حال سفارش برای میز شماره {{ table_num }}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- SEARCH & FILTERS BAR -->
+    <div style="max-width: 800px; margin: 0 auto 3rem auto;">
+        <form method="GET" action="{% url 'menu:index' %}" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            {% if selected_category %}
+            <input type="hidden" name="category" value="{{ selected_category }}">
+            {% endif %}
+            
+            <div style="flex: 1; position: relative;">
+                <input type="text" name="q" value="{{ search_query }}" placeholder="جستجو در منو (اسپرسو، موکا، سان‌شاین...)" style="width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 50px; padding: 0.8rem 1.5rem; color: #FFF; font-size: 0.95rem;">
+            </div>
+
+            <select name="temp" onchange="this.form.submit()" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 50px; padding: 0.8rem 1.5rem; color: #FFF; font-size: 0.95rem;">
+                <option value="">همه نوشیدنی‌ها</option>
+                <option value="hot" {% if temp_filter == 'hot' %}selected{% endif %}>☕ سرو گرم</option>
+                <option value="cold" {% if temp_filter == 'cold' %}selected{% endif %}>🧊 سرو سرد</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary" style="border-radius: 50px;">
+                <i class="fa-solid fa-magnifying-glass"></i> جستجو
+            </button>
+        </form>
+    </div>
+
+    <!-- CATEGORIES TABS -->
+    <div class="category-tabs">
+        <a href="{% url 'menu:index' %}" class="tab-btn {% if not selected_category %}active{% endif %}">
+            همه آیتم‌ها
+        </a>
+        {% for cat in categories %}
+        <a href="{% url 'menu:index' %}?category={{ cat.slug }}" class="tab-btn {% if selected_category == cat.slug %}active{% endif %}">
+            <i class="fa-solid fa-{{ cat.icon|default:'coffee' }}"></i> {{ cat.title }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- MENU ITEMS GRID -->
+    <div class="grid">
+        {% for item in items %}
+        <div class="glass-card">
+            {% if item.badge_text %}
+            <div class="card-badge">{{ item.badge_text }}</div>
+            {% endif %}
+
+            <img src="{{ item.get_image_url }}" alt="{{ item.title }}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=60';">
+
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <h3 class="card-title">{{ item.title }}</h3>
+                <span style="font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.08); color: var(--text-muted);">
+                    {% if item.temperature == 'hot' %}☕ گرم{% elif item.temperature == 'cold' %}🧊 سرد{% else %}🍽️ خوراکی{% endif %}
+                </span>
+            </div>
+
+            <p class="card-desc">{{ item.description }}</p>
+
+            <div class="card-footer">
+                <div>
+                    <span class="card-price">{{ item.final_price }} تومان</span>
+                    {% if item.discount_percent > 0 %}
+                    <span class="old-price">{{ item.price }}</span>
+                    {% endif %}
+                </div>
+                {% if not item.is_active %}
+                <span style="color: #EF5350; font-size: 0.85rem; font-weight: 700;">ناموجود</span>
+                {% else %}
+                <span style="color: #81C784; font-size: 0.85rem; font-weight: 700;">آماده سرو</span>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem;">
+            <i class="fa-solid fa-mug-hot" style="font-size: 3rem; margin-bottom: 1rem; color: var(--primary-glow);"></i>
+            <h3>هیچ آیتمی در این دسته‌بندی یافت نشد.</h3>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

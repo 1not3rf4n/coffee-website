@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site_settings.site_name }} | {{ site_settings.tagline }}{% endblock %}</title>
+    <meta name="description" content="وب‌سایت اختصاصی {{ site_settings.site_name }} - منوی تخصصی کافه، رزرو آنلاین میز و دانه‌های برشته قهوه.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    {% block body_start %}{% endblock %}
+
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <a href="{% url 'core:landing' %}" class="nav-logo">
+            <i class="fa-solid fa-mug-hot"></i>
+            <span>{{ site_settings.site_name }}</span>
+        </a>
+
+        <ul class="nav-menu">
+            <li><a href="{% url 'core:landing' %}" class="nav-link {% if request.resolver_match.url_name == 'landing' %}active{% endif %}">صفحه اصلی</a></li>
+            {% if site_settings.is_menu_active %}
+            <li><a href="{% url 'menu:index' %}" class="nav-link {% if request.resolver_match.app_name == 'menu' %}active{% endif %}">منوی کافه</a></li>
+            {% endif %}
+            {% if site_settings.is_shop_active %}
+            <li><a href="{% url 'shop:index' %}" class="nav-link {% if request.resolver_match.app_name == 'shop' %}active{% endif %}">فروشگاه آنلاین</a></li>
+            {% endif %}
+            {% if site_settings.is_reservation_active %}
+            <li><a href="{% url 'reservations:index' %}" class="nav-link {% if request.resolver_match.app_name == 'reservations' %}active{% endif %}">رزرو میز</a></li>
+            {% endif %}
+            {% if site_settings.is_shop_active %}
+            <li><a href="{% url 'orders:track' %}" class="nav-link {% if request.resolver_match.url_name == 'track' %}active{% endif %}">پیگیری سفارش</a></li>
+            {% endif %}
+            {% if user.is_staff or user.is_superuser %}
+            <li><a href="{% url 'dashboard:index' %}" class="nav-link" style="color: var(--orange-glow); font-weight:700;"><i class="fa-solid fa-sliders"></i> پنل مدیریت</a></li>
+            {% endif %}
+        </ul>
+
+        <div class="nav-actions">
+            {% if site_settings.is_shop_active %}
+            <a href="{% url 'cart:detail' %}" class="cart-icon-btn" title="سبد خرید">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span class="cart-badge">{{ cart_total_items|default:"0" }}</span>
+            </a>
+            {% endif %}
+            <a href="{% url 'menu:index' %}" class="btn btn-primary">
+                مشاهده منو
+            </a>
+        </div>
+    </nav>
+
+    <!-- MESSAGES NOTIFICATION -->
+    {% if messages %}
+    <div style="position: fixed; top: 90px; right: 4%; z-index: 9999; display:flex; flex-direction:column; gap:10px;">
+        {% for message in messages %}
+        <div style="background: rgba(20, 23, 29, 0.95); border-right: 4px solid var(--orange-primary); color: #FFF; padding: 12px 20px; border-radius: 10px; backdrop-filter: blur(10px); box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+            <i class="fa-solid fa-circle-info" style="color: var(--orange-primary); margin-left: 8px;"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- MAIN CONTENT -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- SOUNDSCAPE WIDGET -->
+    {% if site_settings.is_soundscape_active %}
+    <div class="soundscape-widget" id="soundscapeToggle">
+        <i class="fa-solid fa-music"></i>
+        <span style="font-size: 0.85rem; font-weight: 600;">صدای کافه</span>
+    </div>
+    {% endif %}
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <a href="{% url 'core:landing' %}" class="nav-logo" style="margin-bottom: 1rem;">
+                    <i class="fa-solid fa-mug-hot"></i>
+                    <span>{{ site_settings.site_name }}</span>
+                </a>
+                <p>{{ site_settings.tagline }}</p>
+                <p style="margin-top: 0.8rem; font-weight: 700; color: var(--orange-primary);">
+                    <i class="fa-brands fa-instagram"></i> {{ site_settings.instagram }}
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>دسترسی سریع</h4>
+                <ul>
+                    <li><a href="{% url 'menu:index' %}">منوی کافه حضوری</a></li>
+                    <li><a href="{% url 'shop:index' %}">فروشگاه دانه‌های برشته</a></li>
+                    <li><a href="{% url 'reservations:index' %}">رزرو آنلاین میز</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>تماس و آدرس کافه</h4>
+                <p><i class="fa-solid fa-location-dot" style="color: var(--orange-primary); margin-left: 6px;"></i> {{ site_settings.address }}</p>
+                <p><i class="fa-solid fa-phone" style="color: var(--orange-primary); margin-left: 6px;"></i> {{ site_settings.phone }}</p>
+                <p><i class="fa-solid fa-clock" style="color: var(--orange-primary); margin-left: 6px;"></i> {{ site_settings.open_time }} الی {{ site_settings.close_time }}</p>
+            </div>
+        </div>
+        <div class="copyright">
+            تمامی حقوق محفوظ است © {{ site_settings.site_name }}
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

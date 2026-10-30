@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}مدیریت منو و چیدمان | پنل مدیریت{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 8rem;">
+    <div class="section-header">
+        <div class="section-tag">کنترل کامل منو</div>
+        <h2 class="section-title">ویرایش قیمت، تخفیف، اولویت و روشن/خاموش کردن آیتم‌ها</h2>
+    </div>
+
+    <!-- ADD NEW MENU ITEM FORM MODAL TRIGGER -->
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+        <button onclick="document.getElementById('addItemModal').classList.add('open')" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> افزودن آیتم جدید به منو
+        </button>
+    </div>
+
+    <!-- MENU ITEMS TABLE -->
+    <div class="glass-card" style="overflow-x: auto; padding: 1.5rem;">
+        <table style="width: 100%; border-collapse: collapse; text-align: right; color: #FFF;">
+            <thead>
+                <tr style="border-bottom: 2px solid var(--border-glow); color: var(--primary-glow);">
+                    <th style="padding: 12px;">آیتم</th>
+                    <th style="padding: 12px;">دسته‌بندی</th>
+                    <th style="padding: 12px;">قیمت (تومان)</th>
+                    <th style="padding: 12px;">تخفیف (تومان)</th>
+                    <th style="padding: 12px;">چیدمان (اولویت)</th>
+                    <th style="padding: 12px;">وضعیت (موجود/ناموجود)</th>
+                    <th style="padding: 12px;">عملیات سریع</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <td style="padding: 12px; font-weight: 700;">{{ item.title }}</td>
+                    <td style="padding: 12px; color: var(--text-muted);">{{ item.category.title }}</td>
+                    
+                    <form method="POST" action="{% url 'dashboard:menu' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="quick_edit_item">
+                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                        
+                        <td style="padding: 12px;">
+                            <input type="number" name="price" value="{{ item.price }}" style="width: 100px; background: var(--bg-dark); border: 1px solid var(--border-color); color: #FFF; border-radius: 6px; padding: 4px 8px;">
+                        </td>
+                        <td style="padding: 12px;">
+                            <input type="number" name="discount_price" value="{{ item.discount_price }}" style="width: 100px; background: var(--bg-dark); border: 1px solid var(--border-color); color: #FFF; border-radius: 6px; padding: 4px 8px;">
+                        </td>
+                        <td style="padding: 12px;">
+                            <input type="number" name="display_order" value="{{ item.display_order }}" style="width: 60px; background: var(--bg-dark); border: 1px solid var(--border-color); color: #FFF; border-radius: 6px; padding: 4px 8px;">
+                        </td>
+                        <td style="padding: 12px;">
+                            {% if item.is_active %}
+                            <span style="background: rgba(76, 175, 80, 0.2); color: #81C784; padding: 4px 10px; border-radius: 50px; font-size: 0.8rem;">روشن / موجود</span>
+                            {% else %}
+                            <span style="background: rgba(239, 83, 80, 0.2); color: #EF5350; padding: 4px 10px; border-radius: 50px; font-size: 0.8rem;">خاموش / ناموجود</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 12px; display: flex; gap: 8px;">
+                            <button type="submit" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem;">ذخیره</button>
+                    </form>
+                            
+                            <form method="POST" action="{% url 'dashboard:menu' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="toggle_item">
+                                <input type="hidden" name="item_id" value="{{ item.id }}">
+                                <button type="submit" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.8rem;">
+                                    {% if item.is_active %}خاموش کن{% else %}روشن کن{% endif %}
+                                </button>
+                            </form>
+                        </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ADD ITEM MODAL -->
+    <div class="modal" id="addItemModal">
+        <div class="modal-content" style="max-width: 550px; text-align: right;">
+            <span class="close-modal" onclick="document.getElementById('addItemModal').classList.remove('open')">&times;</span>
+            <h3 style="color: var(--primary-glow); margin-bottom: 1.5rem;">افزودن آیتم جدید به منو</h3>
+
+            <form method="POST" action="{% url 'dashboard:menu' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_item">
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.4rem;">دسته‌بندی:</label>
+                    <select name="category_id" required style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; color: #FFF;">
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.4rem;">نام آیتم:</label>
+                    <input type="text" name="title" required placeholder="مثال: کاپوچینو کارامل" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; color: #FFF;">
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.4rem;">توضیحات و ترکیبات:</label>
+                    <textarea name="description" rows="2" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; color: #FFF;"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem;">قیمت (تومان):</label>
+                        <input type="number" name="price" required value="65000" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; color: #FFF;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem;">مبلغ تخفیف (تومان):</label>
+                        <input type="number" name="discount_price" value="0" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; color: #FFF;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem;">نشان اختصاصی:</label>
+                        <input type="text" name="badge_text" placeholder="ویژه باریستا، داغ..." style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; color: #FFF;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem;">نوع سرو:</label>
+                        <select name="temperature" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; color: #FFF;">
+                            <option value="hot">☕ گرم</option>
+                            <option value="cold">🧊 سرد</option>
+                            <option value="neutral">🍽️ خوراکی</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">ثبت و افزودن به منو</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

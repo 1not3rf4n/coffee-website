@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}رزرو با موفقیت ثبت شد | {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 8rem;">
+    <div class="glass-card" style="max-width: 550px; margin: 0 auto; padding: 2.5rem; text-align: center;">
+        <i class="fa-solid fa-circle-check" style="font-size: 4rem; color: #81C784; margin-bottom: 1rem;"></i>
+        <h2 style="color: #FFF; margin-bottom: 0.5rem;">رزرو میز با موفقیت ثبت شد!</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">منتظر دیدار شما در کافه {{ site_settings.site_name }} هستیم.</p>
+
+        <div style="background: var(--bg-dark); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 12px; text-align: right; margin-bottom: 2rem;">
+            <p><strong>مشتری:</strong> {{ reservation.full_name }}</p>
+            <p><strong>شماره تماس:</strong> {{ reservation.phone }}</p>
+            <p><strong>تاریخ و ساعت:</strong> {{ reservation.date }} - {{ reservation.time }}</p>
+            <p><strong>تعداد نفرات:</strong> {{ reservation.guests_count }} نفر</p>
+            <p><strong>وضعیت:</strong> <span style="color: #81C784; font-weight:700;">{{ reservation.get_status_display }}</span></p>
+        </div>
+
+        <a href="{% url 'core:landing' %}" class="btn btn-primary">بازگشت به صفحه اصلی</a>
+    </div>
+</section>
+{% endblock %}

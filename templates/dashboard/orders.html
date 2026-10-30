@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}مدیریت سفارشات فروشگاه | پنل مدیریت{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 8rem;">
+    <div class="section-header">
+        <div class="section-tag">سفارشات آنلاین</div>
+        <h2 class="section-title">لیست کامل سفارشات دانه‌های برشته و تجهیزات</h2>
+    </div>
+
+    <div class="glass-card" style="overflow-x: auto; padding: 1.5rem;">
+        <table style="width: 100%; border-collapse: collapse; text-align: right; color: #FFF;">
+            <thead>
+                <tr style="border-bottom: 2px solid var(--border-glow); color: var(--primary-glow);">
+                    <th style="padding: 12px;">شماره سفارش</th>
+                    <th style="padding: 12px;">خریدار</th>
+                    <th style="padding: 12px;">تلفن و آدرس</th>
+                    <th style="padding: 12px;">مبلغ کل</th>
+                    <th style="padding: 12px;">کد پیگیری</th>
+                    <th style="padding: 12px;">وضعیت</th>
+                    <th style="padding: 12px;">تغییر وضعیت</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <td style="padding: 12px; font-weight: 800; color: var(--primary-glow);">{{ order.order_number }}</td>
+                    <td style="padding: 12px; font-weight: 700;">{{ order.full_name }}</td>
+                    <td style="padding: 12px; font-size: 0.85rem; color: var(--text-muted);">
+                        {{ order.phone }}<br>{{ order.address|truncatewords:8 }}
+                    </td>
+                    <td style="padding: 12px; font-weight: 800;">{{ order.total_price }} تومان</td>
+                    <td style="padding: 12px;">{{ order.tracking_code|default:"-" }}</td>
+                    <td style="padding: 12px;">
+                        <span style="font-weight: 700;">{{ order.get_status_display }}</span>
+                    </td>
+                    <td style="padding: 12px;">
+                        <form method="POST" action="{% url 'dashboard:orders' %}" style="display: flex; gap: 6px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                            <select name="status" style="background: var(--bg-dark); border: 1px solid var(--border-color); color: #FFF; border-radius: 6px; padding: 4px;">
+                                <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>در انتظار پرداخت</option>
+                                <option value="paid" {% if order.status == 'paid' %}selected{% endif %}>پرداخت شده / آماده‌سازی</option>
+                                <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>در حال برشته‌کاری</option>
+                                <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>تحویل پست / ارسال شده</option>
+                                <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>لغو شده</option>
+                            </select>
+                            <button type="submit" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem;">بروزرسانی</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">هنوز هیچ سفارشی ثبت نشده است.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

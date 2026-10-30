@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ site_settings.site_name }} | برشته‌کاری تخصصی قهوه{% endblock %}
+
+{% block extra_head %}
+{% if site_settings.is_hero_animation_active %}
+<link rel="stylesheet" href="{% static 'css/logo-motion.css' %}">
+{% endif %}
+{% endblock %}
+
+{% block body_start %}
+{% if site_settings.is_hero_animation_active %}
+{% include 'partials/logo_motion.html' %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- HERO SECTION -->
+{% if site_settings.is_hero_animation_active %}
+<section class="hero-container">
+    <div class="hero-content visible" id="heroContent">
+        <!-- LIVE STATUS BADGE -->
+        <div class="live-badge {% if not live_status.is_open %}closed{% endif %}">
+            <div class="live-dot"></div>
+            <span>{{ live_status.status_text }}</span>
+        </div>
+
+        <h1 class="hero-title">{{ site_settings.site_name }}</h1>
+        <p class="hero-subtitle">{{ site_settings.tagline }}</p>
+
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            {% if site_settings.is_menu_active %}
+            <a href="{% url 'menu:index' %}" class="btn btn-primary" style="font-size: 1.05rem; padding: 0.85rem 2.4rem;">
+                <i class="fa-solid fa-mug-saucer"></i> مشاهده منوی کافه
+            </a>
+            {% endif %}
+            {% if site_settings.is_reservation_active %}
+            <a href="{% url 'reservations:index' %}" class="btn btn-outline" style="font-size: 1.05rem; padding: 0.85rem 2.4rem;">
+                <i class="fa-solid fa-chair"></i> رزرو آنلاین میز
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- FEATURED MENU ITEMS -->
+{% if site_settings.is_menu_active %}
+<section class="section">
+    <div class="section-header">
+        <div class="section-tag">منوی حضوری کافه</div>
+        <h2 class="section-title">نوشیدنی‌ها و خوراکی‌های برتر</h2>
+    </div>
+
+    <div class="grid">
+        {% for item in featured_menu_items %}
+        <div class="glass-card">
+            {% if item.badge_text %}
+            <div class="card-badge">{{ item.badge_text }}</div>
+            {% endif %}
+            <img src="{{ item.get_image_url }}" alt="{{ item.title }}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=60';">
+            <h3 class="card-title">{{ item.title }}</h3>
+            <p class="card-desc">{{ item.description|truncatewords:14 }}</p>
+            <div class="card-footer">
+                <div>
+                    <span class="card-price">{{ item.final_price }} تومان</span>
+                    {% if item.discount_percent > 0 %}
+                    <span class="old-price">{{ item.price }}</span>
+                    {% endif %}
+                </div>
+                <a href="{% url 'menu:index' %}" class="btn btn-outline" style="padding: 5px 14px; font-size: 0.82rem;">سفارش</a>
+            </div>
+        </div>
+        {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">
+            آیتمی جهت نمایش وجود ندارد.
+        </div>
+        {% endfor %}
+    </div>
+
+    <div style="text-align: center; margin-top: 2.5rem;">
+        <a href="{% url 'menu:index' %}" class="btn btn-outline" style="padding: 0.8rem 2.2rem; font-size: 0.95rem;">
+            مشاهده کامل منو <i class="fa-solid fa-arrow-left"></i>
+        </a>
+    </div>
+</section>
+{% endif %}
+
+<!-- E-COMMERCE SHOP PREVIEW -->
+{% if site_settings.is_shop_active %}
+<section class="section">
+    <div class="section-header">
+        <div class="section-tag">فروشگاه آنلاین</div>
+        <h2 class="section-title">تازه‌ترین دانه‌های برشته‌کاری شده</h2>
+    </div>
+
+    <div class="grid">
+        {% for product in featured_products %}
+        <div class="glass-card">
+            <img src="{{ product.get_image_url }}" alt="{{ product.title }}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=60';">
+            <h3 class="card-title">{{ product.title }}</h3>
+            <p class="card-desc">{{ product.flavor_notes|default:product.description|truncatewords:12 }}</p>
+            <div class="card-footer">
+                <span class="card-price">{{ product.final_price }} تومان</span>
+                <button class="btn btn-primary add-to-cart-btn" data-product-id="{{ product.id }}" style="padding: 5px 14px; font-size: 0.82rem;">
+                    <i class="fa-solid fa-cart-plus"></i> خرید
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+{% if site_settings.is_hero_animation_active %}
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="{% static 'js/logo-motion.js' %}"></script>
+{% endif %}
+{% endblock %}

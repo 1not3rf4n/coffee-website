@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}رزرو آنلاین میز | کافه {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 8rem;">
+    <div class="section-header">
+        <div class="section-tag">سیستم هوشمند رزرو میز</div>
+        <h2 class="section-title">رزرو سریع میز در فضای کافه</h2>
+        <p style="color: var(--text-muted); margin-top: 0.5rem;">تاریخ، زمان و تعداد نفرات را انتخاب کنید تا بهترین میز برای شما آماده شود.</p>
+    </div>
+
+    <div class="glass-card" style="max-width: 650px; margin: 0 auto; padding: 2.5rem;">
+        
+        <!-- DEPOSIT DECORATIVE BANNER -->
+        <div style="background: rgba(230, 81, 0, 0.12); border: 1px solid var(--border-glow); padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 2rem; display: flex; align-items: center; gap: 12px;">
+            <i class="fa-solid fa-circle-info" style="font-size: 1.5rem; color: var(--primary-glow);"></i>
+            <div>
+                <strong style="color: var(--primary-glow);">شرایط رزرو:</strong>
+                {% if res_settings.require_deposit %}
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">رزرو این روز شامل <strong>{{ res_settings.deposit_amount }} تومان بیعانه</strong> است که در گام بعد پرداخت خواهد شد.</p>
+                {% else %}
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">رزرو میز در حال حاضر <strong>رایگان</strong> بوده و بیعانه دریافت نمی‌گردد.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <form method="POST" action="{% url 'reservations:index' %}">
+            {% csrf_token %}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">نام و نام خانوادگی:</label>
+                    <input type="text" name="full_name" required placeholder="مثال: علی محمدی" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.8rem 1.2rem; color: #FFF;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">شماره همراه:</label>
+                    <input type="tel" name="phone" required placeholder="مثال: 09123456789" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.8rem 1.2rem; color: #FFF;">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">تاریخ رزرو:</label>
+                    <input type="date" name="date" required style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.8rem 1.2rem; color: #FFF;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">ساعت رزرو:</label>
+                    <input type="time" name="time" required value="18:00" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.8rem 1.2rem; color: #FFF;">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">تعداد نفرات:</label>
+                    <input type="number" name="guests_count" min="1" max="{{ res_settings.max_guests|default:10 }}" value="2" required style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.8rem 1.2rem; color: #FFF;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">شماره میز ترجیحی (اختیاری):</label>
+                    <input type="number" name="table_number" placeholder="مثال: میز ۵" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.8rem 1.2rem; color: #FFF;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">درخواست یا توضیحات ویژه :</label>
+                <textarea name="special_request" rows="3" placeholder="توضیحات خود را بنویسید..." style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.8rem 1.2rem; color: #FFF;"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.1rem;">
+                <i class="fa-solid fa-calendar-check"></i> ثبت نهایی رزرو میز
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}

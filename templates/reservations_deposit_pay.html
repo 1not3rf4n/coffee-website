@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}پرداخت بیعانه رزرو میز | {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 8rem;">
+    <div class="glass-card" style="max-width: 550px; margin: 0 auto; padding: 2.5rem; text-align: center;">
+        <i class="fa-solid fa-credit-card" style="font-size: 3rem; color: var(--primary-glow); margin-bottom: 1rem;"></i>
+        <h2 style="color: #FFF; margin-bottom: 0.5rem;">پرداخت بیعانه رزرو میز</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">رزرو به نام <strong>{{ reservation.full_name }}</strong> برای تاریخ {{ reservation.date }} ساعت {{ reservation.time }}</p>
+
+        <div style="background: rgba(255, 152, 0, 0.1); border: 1px solid var(--border-glow); padding: 1.2rem; border-radius: 12px; margin-bottom: 2rem;">
+            <span style="display: block; font-size: 0.9rem; color: var(--text-muted);">مبلغ بیعانه قابل پرداخت:</span>
+            <span style="font-size: 1.8rem; font-weight: 800; color: var(--primary-glow);">{{ reservation.deposit_amount }} تومان</span>
+        </div>
+
+        <form method="POST" action="{% url 'reservations:deposit_pay' reservation.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.1rem;">
+                <i class="fa-solid fa-lock"></i> پرداخت امن بیعانه و تایید رزرو
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}

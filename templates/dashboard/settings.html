@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}تنظیمات دیزاین و امکانات سایت | پنل مدیریت{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 8rem;">
+    <div class="section-header">
+        <div class="section-tag">پیکربندی هوشمند</div>
+        <h2 class="section-title">تنظیمات رنگ، طرح‌ها و روشن/خاموش کردن گزینه‌های سایت</h2>
+    </div>
+
+    <div class="glass-card" style="max-width: 800px; margin: 0 auto; padding: 2.5rem;">
+        <form method="POST" action="{% url 'dashboard:settings' %}">
+            {% csrf_token %}
+
+            <h3 style="color: var(--primary-glow); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+                <i class="fa-solid fa-palette"></i> تنظیمات دیزاین و پلت رنگ‌ها
+            </h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">رنگ اصلی سایت (نارنجی):</label>
+                    <input type="color" name="primary_color" value="{{ site_settings.primary_color }}" style="width: 100%; height: 45px; border: none; border-radius: 8px; cursor: pointer;">
+                </div>
+
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">رنگ پس‌زمینه و کارت‌ها (طوسی/زغالی):</label>
+                    <input type="color" name="secondary_color" value="{{ site_settings.secondary_color }}" style="width: 100%; height: 45px; border: none; border-radius: 8px; cursor: pointer;">
+                </div>
+            </div>
+
+            <h3 style="color: var(--primary-glow); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+                <i class="fa-solid fa-toggle-on"></i> روشن / خاموش کردن بخش‌ها و گزینه‌های سایت
+            </h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 2rem;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
+                    <input type="checkbox" name="is_hero_animation_active" {% if site_settings.is_hero_animation_active %}checked{% endif %}>
+                    <span>انیمیشن هیرو برشته‌کاری قهوه</span>
+                </label>
+
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
+                    <input type="checkbox" name="is_menu_active" {% if site_settings.is_menu_active %}checked{% endif %}>
+                    <span>بخش منوی کافه</span>
+                </label>
+
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
+                    <input type="checkbox" name="is_shop_active" {% if site_settings.is_shop_active %}checked{% endif %}>
+                    <span>بخش فروشگاه آنلاین</span>
+                </label>
+
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
+                    <input type="checkbox" name="is_reservation_active" {% if site_settings.is_reservation_active %}checked{% endif %}>
+                    <span>بخش رزرو آنلاین میز</span>
+                </label>
+
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
+                    <input type="checkbox" name="is_quiz_active" {% if site_settings.is_quiz_active %}checked{% endif %}>
+                    <span>تست هوشمند قهوه</span>
+                </label>
+
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
+                    <input type="checkbox" name="is_lucky_wheel_active" {% if site_settings.is_lucky_wheel_active %}checked{% endif %}>
+                    <span>گردونه شانس روزانه</span>
+                </label>
+
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
+                    <input type="checkbox" name="is_soundscape_active" {% if site_settings.is_soundscape_active %}checked{% endif %}>
+                    <span>پلیر صدای آکوستیک کافه</span>
+                </label>
+            </div>
+
+            <h3 style="color: var(--primary-glow); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+                <i class="fa-solid fa-chair"></i> تنظیمات بیعانه رزرو میز (دست ادمین)
+            </h3>
+
+            <div style="background: rgba(255,152,0,0.08); border: 1px solid var(--border-glow); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 1rem;">
+                    <input type="checkbox" name="require_deposit" {% if res_settings.require_deposit %}checked{% endif %}>
+                    <strong style="color: #FFF;">رزرو میز نیاز به پرداخت بیعانه داشته باشد</strong>
+                </label>
+
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">مبلغ بیعانه هر رزرو (تومان):</label>
+                    <input type="number" name="deposit_amount" value="{{ res_settings.deposit_amount }}" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.8rem 1.2rem; color: #FFF;">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 0.9rem;">
+                <i class="fa-solid fa-floppy-disk"></i> ذخیره تغییرات دیزاین و پیکربندی
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}

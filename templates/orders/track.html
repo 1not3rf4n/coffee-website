@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}پیگیری سفارش | {{ site_settings.site_name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .track-wrap { max-width: 760px; margin: 0 auto; }
+
+    .track-form {
+        display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;
+        margin-bottom: 2rem;
+    }
+    .track-field { flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; }
+    .track-field label { font-size: 0.9rem; color: var(--text-body); font-weight: 600; }
+    .track-field input {
+        background: var(--bg-dark); border: 1px solid var(--border-glow);
+        border-radius: 10px; padding: 0.8rem 1rem; color: #fff; font-family: inherit;
+        font-size: 0.95rem; outline: none; transition: border-color .2s;
+    }
+    .track-field input:focus { border-color: var(--orange-primary); }
+
+    /* ---- stepped progress ---- */
+    .track-steps {
+        display: flex; justify-content: space-between; position: relative;
+        margin: 2.5rem 0 1rem; padding: 0 8px;
+    }
+    .track-steps::before {
+        content: ''; position: absolute; top: 26px; right: 8%; left: 8%;
+        height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; z-index: 0;
+    }
+    .track-steps.fill::after {
+        content: ''; position: absolute; top: 26px; right: 8%;
+        height: 4px; background: linear-gradient(90deg, var(--ember-hi), var(--ember));
+        border-radius: 4px; z-index: 1; width: var(--fill, 0%);
+        transition: width .5s var(--ease);
+    }
+    .track-step {
+        position: relative; z-index: 2; display: flex; flex-direction: column;
+        align-items: center; gap: 8px; flex: 1; text-align: center;
+    }
+    .track-step .dot {
+        width: 54px; height: 54px; border-radius: 50%;
+        display: grid; place-items: center; font-size: 1.2rem;
+        background: var(--bg-surface); border: 2px solid rgba(255,255,255,0.15);
+        color: var(--text-muted); transition: all .3s;
+    }
+    .track-step.done .dot {
+        background: var(--ember);
+        border-color: var(--ember); color: #150a03;
+    }
+    .track-step.active .dot { transform: scale(1.1); animation: pulse 1.8s infinite; }
+    @keyframes pulse {
+        0%,100% { box-shadow: 0 0 0 0 var(--ember-soft); }
+        50%     { box-shadow: 0 0 0 8px rgba(240,120,46,0.14); }
+    }
+    .track-step .lbl { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; }
+    .track-step.done .lbl, .track-step.active .lbl { color: var(--text-body); }
+
+    .track-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem 1.5rem; }
+    .track-meta p { margin: 0; color: var(--text-body); }
+    .track-meta strong { color: var(--text-muted); font-weight: 600; }
+
+    .track-items { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .track-items th, .track-items td {
+        text-align: right; padding: 0.7rem 0.5rem; border-bottom: 1px solid var(--border-glow);
+        font-size: 0.9rem;
+    }
+    .track-items th { color: var(--ember); font-weight: 700; }
+    @media (max-width: 560px) { .track-meta { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 7rem;">
+    <div class="section-header">
+        <div class="section-tag">پیگیری سفارش</div>
+        <h2 class="section-title">سفارشت رو دنبال کن</h2>
+    </div>
+
+    <div class="track-wrap">
+        <!-- LOOKUP FORM -->
+        <form method="post" class="glass-card" style="padding: 1.8rem;">
+            {% csrf_token %}
+            <div class="track-form">
+                <div class="track-field">
+                    <label for="order_number">شماره سفارش</label>
+                    <input type="text" id="order_number" name="order_number"
+                           placeholder="مثال: NC-10432" value="{{ order_number }}" required>
+                </div>
+                <div class="track-field">
+                    <label for="phone">شماره موبایل</label>
+                    <input type="text" id="phone" name="phone"
+                           placeholder="۰۹۱۲۳۴۵۶۷۸۹" value="{{ phone }}" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="padding: 0.85rem 2.2rem;">
+                    <i class="fa-solid fa-magnifying-glass"></i> پیگیری
+                </button>
+            </div>
+        </form>
+
+        {% if not_found %}
+        <div class="glass-card" style="margin-top: 1.5rem; padding: 1.5rem; text-align: center; border-right: 4px solid #C62828;">
+            <i class="fa-solid fa-circle-exclamation" style="color:#e57373; font-size: 1.6rem;"></i>
+            <p style="margin-top: 0.6rem; color: var(--text-body);">
+                سفارشی با این شماره و موبایل پیدا نشد. لطفاً شماره سفارش و موبایل ثبت‌شده هنگام خرید را دوباره بررسی کن.
+            </p>
+        </div>
+        {% endif %}
+
+        {% if order %}
+        <div class="glass-card" style="margin-top: 1.5rem; padding: 2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                <h3 style="color:#fff; margin:0;">سفارش {{ order.order_number }}</h3>
+                {% if order.status == 'cancelled' %}
+                <span style="background:#C62828; color:#fff; padding:4px 16px; border-radius:20px; font-weight:700;">
+                    {{ order.get_status_display }}
+                </span>
+                {% else %}
+                <span style="background:var(--ember); color:#150a03; padding:4px 16px; border-radius:20px; font-weight:700;">
+                    {{ order.get_status_display }}
+                </span>
+                {% endif %}
+            </div>
+
+            {% if order.status == 'cancelled' %}
+            <p style="margin-top:1.5rem; color:#e57373; text-align:center;">
+                <i class="fa-solid fa-ban"></i> این سفارش لغو شده است. در صورت نیاز با کافه تماس بگیر.
+            </p>
+            {% else %}
+            <!-- STEPPED PROGRESS -->
+            {% with done_count=0 %}{% endwith %}
+            <div class="track-steps fill"
+                 style="--fill: {% if order.status == 'pending' %}0%{% elif order.status == 'paid' %}28%{% elif order.status == 'processing' %}56%{% elif order.status == 'shipped' %}84%{% else %}0%{% endif %};">
+                {% for step in steps %}
+                <div class="track-step {% if step.done %}done{% endif %} {% if step.active %}active{% endif %}">
+                    <div class="dot"><i class="fa-solid {{ step.icon }}"></i></div>
+                    <div class="lbl">{{ step.label }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- ORDER META -->
+            <div style="background: var(--bg-dark); border: 1px solid var(--border-glow); padding: 1.3rem; border-radius: 12px; margin-top: 2rem;">
+                <div class="track-meta">
+                    <p><strong>نام خریدار:</strong> {{ order.full_name }}</p>
+                    <p><strong>شماره تماس:</strong> {{ order.phone }}</p>
+                    {% if order.tracking_code %}
+                    <p><strong>کد رهگیری مرسوله:</strong>
+                        <mark style="background:#FF9800; color:#000; padding:2px 8px; border-radius:4px; font-weight:800;">{{ order.tracking_code }}</mark>
+                    </p>
+                    {% endif %}
+                    <p><strong>مبلغ کل:</strong> {{ order.total_price }} تومان</p>
+                    <p style="grid-column:1/-1;"><strong>آدرس تحویل:</strong> {{ order.address }}</p>
+                </div>
+            </div>
+
+            <!-- ITEMS -->
+            {% if order.items.all %}
+            <table class="track-items">
+                <tr><th>محصول</th><th>آسیاب</th><th>تعداد</th><th>قیمت واحد</th></tr>
+                {% for item in order.items.all %}
+                <tr>
+                    <td>{{ item.product_name }}</td>
+                    <td>{{ item.grind_type }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.price }} تومان</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
