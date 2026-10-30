@@ -28,3 +28,4 @@ EXPOSE 8000
 RUN chmod +x /app/start.sh
 
 CMD ["sh", "/app/start.sh"]
+
