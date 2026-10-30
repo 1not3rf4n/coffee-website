@@ -1,12 +1,15 @@
 # ───────────────────────────────────────────────
 #  نوین کافه — وابستگی‌های پروژه Django
-#  برای دیپلوی روی SmarterASP.NET
+#  Railway / Production
 # ───────────────────────────────────────────────
 
 # Core Django
 Django==5.2.8
 asgiref==3.10.0
 sqlparse==0.5.3
+
+# WSGI Server (اجباری برای Railway و هر هاست production)
+gunicorn==23.0.0
 
 # Admin Theme
 django-jazzmin==3.0.5

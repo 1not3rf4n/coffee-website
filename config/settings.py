@@ -19,11 +19,21 @@ SECRET_KEY = os.environ.get(
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
+    # SmarterASP
     'aminm1-002-site1.htempurl.com',
     '.htempurl.com',
+    # Railway
+    '.railway.app',
+    '.up.railway.app',
+    # Local
     'localhost',
     '127.0.0.1',
 ]
+
+# اگه Railway دامنه سفارشی‌ای از env بده، اضافه کن
+_railway_host = os.environ.get('RAILWAY_PUBLIC_DOMAIN')
+if _railway_host:
+    ALLOWED_HOSTS.append(_railway_host)
 
 INSTALLED_APPS = [
     'jazzmin',   # modern themed admin — must sit above django.contrib.admin
