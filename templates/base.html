@@ -3,107 +3,269 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>{% block title %}{{ site_settings.site_name }} | {{ site_settings.tagline }}{% endblock %}</title>
     <meta name="description" content="وب‌سایت اختصاصی {{ site_settings.site_name }} - منوی تخصصی کافه، رزرو آنلاین میز و دانه‌های برشته قهوه.">
+    
+    <meta name="theme-color" content="{{ site_settings.secondary_color|default:'#17181B' }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="{{ site_settings.site_name }}">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="icon" type="image/png" href="{% if site_settings.logo_image %}{{ site_settings.logo_image.url }}{% else %}{% static 'img/logo-mark.png' %}{% endif %}">
+    <link rel="apple-touch-icon" href="{% if site_settings.logo_image %}{{ site_settings.logo_image.url }}{% else %}{% static 'img/logo-mark.png' %}{% endif %}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        :root {
+            {% if site_settings.primary_color %}
+            --ember: {{ site_settings.primary_color }};
+            --orange-primary: {{ site_settings.primary_color }};
+            --primary-glow: {{ site_settings.primary_color }};
+            {% endif %}
+            {% if site_settings.secondary_color %}
+            --ink: {{ site_settings.secondary_color }};
+            --bg-dark: {{ site_settings.secondary_color }};
+            {% endif %}
+            {% if site_settings.accent_glow %}
+            --ember-hi: {{ site_settings.accent_glow }};
+            --orange-glow: {{ site_settings.accent_glow }};
+            --border-glow: {{ site_settings.accent_glow }}44;
+            {% endif %}
+        }
+    </style>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
 
     {% block body_start %}{% endblock %}
 
+    <header class="site-header">
+        <nav class="navbar">
+            <div class="nav-left-group">
+                <button class="nav-toggle-btn" id="navToggleBtn" type="button" aria-label="منوی موبایل">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <a href="{% url 'core:landing' %}" class="nav-logo">
+                    <img src="{% if site_settings.logo_image %}{{ site_settings.logo_image.url }}{% else %}{% static 'img/logo-mark.png' %}{% endif %}" alt="{{ site_settings.site_name }}" class="nav-logo-img">
+                    <span class="nav-logo-text">{{ site_settings.site_name }}</span>
+                </a>
+            </div>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <a href="{% url 'core:landing' %}" class="nav-logo">
-            <i class="fa-solid fa-mug-hot"></i>
-            <span>{{ site_settings.site_name }}</span>
-        </a>
+            <ul class="nav-menu">
+                <li><a href="{% url 'core:landing' %}" class="nav-link {% if request.resolver_match.url_name == 'landing' %}active{% endif %}">صفحه اصلی</a></li>
+                {% if site_settings.is_menu_active %}
+                <li><a href="{% url 'menu:index' %}" class="nav-link {% if request.resolver_match.app_name == 'menu' %}active{% endif %}">منوی کافه</a></li>
+                {% endif %}
+                {% if site_settings.is_shop_active %}
+                <li><a href="{% url 'shop:index' %}" class="nav-link {% if request.resolver_match.app_name == 'shop' and request.resolver_match.url_name != 'detail' %}active{% endif %}">فروشگاه آنلاین</a></li>
+                {% endif %}
+                {% if site_settings.is_reservation_active %}
+                <li><a href="{% url 'reservations:index' %}" class="nav-link {% if request.resolver_match.app_name == 'reservations' %}active{% endif %}">رزرو میز</a></li>
+                {% endif %}
+                {% if site_settings.is_order_tracking_active %}
+                <li><a href="{% url 'orders:track' %}" class="nav-link {% if request.resolver_match.url_name == 'track' %}active{% endif %}">پیگیری سفارش</a></li>
+                {% endif %}
+                {% if user.is_staff or user.is_superuser %}
+                <li><a href="{% url 'dashboard:index' %}" class="nav-link admin-pill"><i class="fa-solid fa-sliders"></i> پنل مدیریت</a></li>
+                {% endif %}
+            </ul>
 
-        <ul class="nav-menu">
-            <li><a href="{% url 'core:landing' %}" class="nav-link {% if request.resolver_match.url_name == 'landing' %}active{% endif %}">صفحه اصلی</a></li>
+            <div class="nav-actions">
+                {% if site_settings.is_shop_active %}
+                <a href="{% url 'cart:detail' %}" class="cart-icon-btn" title="سبد خرید">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span class="cart-badge">{{ cart_total_items|default:"0" }}</span>
+                </a>
+                {% endif %}
+                {% if site_settings.is_menu_active %}
+                <a href="{% url 'menu:index' %}" class="btn btn-primary nav-cta-btn">
+                    مشاهده منو
+                </a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <aside class="mobile-drawer" id="mobileDrawer" aria-label="منوی کشویی دسترسی سریع">
+        <div class="drawer-header">
+            <div class="drawer-brand">
+                <img src="{% if site_settings.logo_image %}{{ site_settings.logo_image.url }}{% else %}{% static 'img/logo-mark.png' %}{% endif %}" alt="{{ site_settings.site_name }}">
+                <div>
+                    <div class="drawer-brand-title">{{ site_settings.site_name }}</div>
+                    <div class="drawer-brand-tag">{{ site_settings.tagline }}</div>
+                </div>
+            </div>
+            <button class="drawer-close-btn" id="drawerCloseBtn" type="button" aria-label="بستن منو">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="drawer-status-bar">
+            <div class="live-dot-mini {% if not live_status.is_open %}closed{% endif %}"></div>
+            <span>{{ live_status.status_text }}</span>
+        </div>
+
+        <ul class="drawer-links">
+            <li>
+                <a href="{% url 'core:landing' %}" class="drawer-link {% if request.resolver_match.url_name == 'landing' %}active{% endif %}">
+                    <i class="fa-solid fa-house"></i>
+                    <span>صفحه اصلی</span>
+                </a>
+            </li>
             {% if site_settings.is_menu_active %}
-            <li><a href="{% url 'menu:index' %}" class="nav-link {% if request.resolver_match.app_name == 'menu' %}active{% endif %}">منوی کافه</a></li>
+            <li>
+                <a href="{% url 'menu:index' %}" class="drawer-link {% if request.resolver_match.app_name == 'menu' %}active{% endif %}">
+                    <i class="fa-solid fa-mug-hot"></i>
+                    <span>منوی تخصصی کافه</span>
+                </a>
+            </li>
             {% endif %}
             {% if site_settings.is_shop_active %}
-            <li><a href="{% url 'shop:index' %}" class="nav-link {% if request.resolver_match.app_name == 'shop' %}active{% endif %}">فروشگاه آنلاین</a></li>
+            <li>
+                <a href="{% url 'shop:index' %}" class="drawer-link {% if request.resolver_match.app_name == 'shop' %}active{% endif %}">
+                    <i class="fa-solid fa-store"></i>
+                    <span>فروشگاه دانه‌های قهوه</span>
+                </a>
+            </li>
             {% endif %}
             {% if site_settings.is_reservation_active %}
-            <li><a href="{% url 'reservations:index' %}" class="nav-link {% if request.resolver_match.app_name == 'reservations' %}active{% endif %}">رزرو میز</a></li>
+            <li>
+                <a href="{% url 'reservations:index' %}" class="drawer-link {% if request.resolver_match.app_name == 'reservations' %}active{% endif %}">
+                    <i class="fa-solid fa-chair"></i>
+                    <span>رزرو آنلاین میز</span>
+                </a>
+            </li>
             {% endif %}
-            {% if site_settings.is_shop_active %}
-            <li><a href="{% url 'orders:track' %}" class="nav-link {% if request.resolver_match.url_name == 'track' %}active{% endif %}">پیگیری سفارش</a></li>
+            {% if site_settings.is_order_tracking_active %}
+            <li>
+                <a href="{% url 'orders:track' %}" class="drawer-link {% if request.resolver_match.url_name == 'track' %}active{% endif %}">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <span>پیگیری سفارش آنلاین</span>
+                </a>
+            </li>
             {% endif %}
             {% if user.is_staff or user.is_superuser %}
-            <li><a href="{% url 'dashboard:index' %}" class="nav-link" style="color: var(--orange-glow); font-weight:700;"><i class="fa-solid fa-sliders"></i> پنل مدیریت</a></li>
+            <li class="drawer-divider">
+                <a href="{% url 'dashboard:index' %}" class="drawer-link drawer-admin-link">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>پنل مدیریت سریع</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/" class="drawer-link drawer-admin-link" target="_blank">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>پنل ادمین اصلی (جزمین)</span>
+                </a>
+            </li>
             {% endif %}
         </ul>
 
-        <div class="nav-actions">
-            {% if site_settings.is_shop_active %}
-            <a href="{% url 'cart:detail' %}" class="cart-icon-btn" title="سبد خرید">
-                <i class="fa-solid fa-bag-shopping"></i>
-                <span class="cart-badge">{{ cart_total_items|default:"0" }}</span>
-            </a>
-            {% endif %}
-            <a href="{% url 'menu:index' %}" class="btn btn-primary">
-                مشاهده منو
-            </a>
+        <div class="drawer-footer-info">
+            <p><i class="fa-solid fa-phone"></i> {{ site_settings.phone }}</p>
+            <p><i class="fa-brands fa-instagram"></i> {{ site_settings.instagram }}</p>
+            <p><i class="fa-solid fa-clock"></i> {{ site_settings.open_time }} الی {{ site_settings.close_time }}</p>
         </div>
+    </aside>
+
+    <nav class="bottom-nav" aria-label="ناوبری سریع موبایل">
+        <a href="{% url 'core:landing' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'landing' %}active{% endif %}">
+            <i class="fa-solid fa-house"></i>
+            <span>خانه</span>
+        </a>
+        {% if site_settings.is_menu_active %}
+        <a href="{% url 'menu:index' %}" class="bottom-nav-item {% if request.resolver_match.app_name == 'menu' %}active{% endif %}">
+            <i class="fa-solid fa-mug-saucer"></i>
+            <span>منو</span>
+        </a>
+        {% endif %}
+        {% if site_settings.is_shop_active %}
+        <a href="{% url 'shop:index' %}" class="bottom-nav-item {% if request.resolver_match.app_name == 'shop' and request.resolver_match.url_name != 'detail' %}active{% endif %}">
+            <i class="fa-solid fa-store"></i>
+            <span>فروشگاه</span>
+        </a>
+        <a href="{% url 'cart:detail' %}" class="bottom-nav-item {% if request.resolver_match.app_name == 'cart' %}active{% endif %}">
+            <div class="bottom-cart-wrap">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span class="cart-badge bottom-badge">{{ cart_total_items|default:"0" }}</span>
+            </div>
+            <span>سبد خرید</span>
+        </a>
+        {% endif %}
+        {% if site_settings.is_reservation_active %}
+        <a href="{% url 'reservations:index' %}" class="bottom-nav-item {% if request.resolver_match.app_name == 'reservations' %}active{% endif %}">
+            <i class="fa-solid fa-chair"></i>
+            <span>رزرو میز</span>
+        </a>
+        {% elif site_settings.is_order_tracking_active %}
+        <a href="{% url 'orders:track' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'track' %}active{% endif %}">
+            <i class="fa-solid fa-truck-fast"></i>
+            <span>پیگیری</span>
+        </a>
+        {% endif %}
     </nav>
 
-    <!-- MESSAGES NOTIFICATION -->
     {% if messages %}
-    <div style="position: fixed; top: 90px; right: 4%; z-index: 9999; display:flex; flex-direction:column; gap:10px;">
+    <div class="toast-container">
         {% for message in messages %}
-        <div style="background: rgba(20, 23, 29, 0.95); border-right: 4px solid var(--orange-primary); color: #FFF; padding: 12px 20px; border-radius: 10px; backdrop-filter: blur(10px); box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
-            <i class="fa-solid fa-circle-info" style="color: var(--orange-primary); margin-left: 8px;"></i>
-            {{ message }}
+        <div class="toast-msg">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>{{ message }}</span>
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
-    <!-- MAIN CONTENT -->
-    <main>
+    <main class="main-content">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- SOUNDSCAPE WIDGET -->
     {% if site_settings.is_soundscape_active %}
-    <div class="soundscape-widget" id="soundscapeToggle">
-        <i class="fa-solid fa-music"></i>
-        <span style="font-size: 0.85rem; font-weight: 600;">صدای کافه</span>
+    <div class="soundscape-widget" id="soundscapeToggle" role="button" aria-label="پخش صدای آرامش‌بخش کافه">
+        <div class="sound-bars">
+            <span></span><span></span><span></span>
+        </div>
+        <span class="sound-text">موزیک کافه</span>
     </div>
     {% endif %}
 
-    <!-- FOOTER -->
     <footer class="footer">
         <div class="footer-grid">
             <div class="footer-col">
                 <a href="{% url 'core:landing' %}" class="nav-logo" style="margin-bottom: 1rem;">
-                    <i class="fa-solid fa-mug-hot"></i>
-                    <span>{{ site_settings.site_name }}</span>
+                    <img src="{% if site_settings.logo_image %}{{ site_settings.logo_image.url }}{% else %}{% static 'img/logo-mark.png' %}{% endif %}" alt="{{ site_settings.site_name }}" class="nav-logo-img">
+                    <span class="nav-logo-text">{{ site_settings.site_name }}</span>
                 </a>
                 <p>{{ site_settings.tagline }}</p>
-                <p style="margin-top: 0.8rem; font-weight: 700; color: var(--orange-primary);">
+                <p style="margin-top: 0.8rem; font-weight: 700; color: var(--ember);">
                     <i class="fa-brands fa-instagram"></i> {{ site_settings.instagram }}
                 </p>
             </div>
             <div class="footer-col">
                 <h4>دسترسی سریع</h4>
                 <ul>
+                    {% if site_settings.is_menu_active %}
                     <li><a href="{% url 'menu:index' %}">منوی کافه حضوری</a></li>
+                    {% endif %}
+                    {% if site_settings.is_shop_active %}
                     <li><a href="{% url 'shop:index' %}">فروشگاه دانه‌های برشته</a></li>
+                    {% endif %}
+                    {% if site_settings.is_reservation_active %}
                     <li><a href="{% url 'reservations:index' %}">رزرو آنلاین میز</a></li>
+                    {% endif %}
+                    {% if site_settings.is_order_tracking_active %}
+                    <li><a href="{% url 'orders:track' %}">پیگیری وضعیت سفارش</a></li>
+                    {% endif %}
                 </ul>
             </div>
             <div class="footer-col">
                 <h4>تماس و آدرس کافه</h4>
-                <p><i class="fa-solid fa-location-dot" style="color: var(--orange-primary); margin-left: 6px;"></i> {{ site_settings.address }}</p>
-                <p><i class="fa-solid fa-phone" style="color: var(--orange-primary); margin-left: 6px;"></i> {{ site_settings.phone }}</p>
-                <p><i class="fa-solid fa-clock" style="color: var(--orange-primary); margin-left: 6px;"></i> {{ site_settings.open_time }} الی {{ site_settings.close_time }}</p>
+                <p><i class="fa-solid fa-location-dot" style="color: var(--ember); margin-left: 6px;"></i> {{ site_settings.address }}</p>
+                <p><i class="fa-solid fa-phone" style="color: var(--ember); margin-left: 6px;"></i> {{ site_settings.phone }}</p>
+                <p><i class="fa-solid fa-clock" style="color: var(--ember); margin-left: 6px;"></i> {{ site_settings.open_time }} الی {{ site_settings.close_time }}</p>
             </div>
         </div>
         <div class="copyright">

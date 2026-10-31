@@ -1,45 +1,43 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}منوی کافه {{ site_settings.site_name }} | سفارش و مشاهده حضوری{% endblock %}
+{% block title %}منوی تخصصی کافه | {{ site_settings.site_name }}{% endblock %}
 
 {% block content %}
-<section class="section" style="padding-top: 8rem;">
+<section class="section" style="padding-top: 7rem;">
     <div class="section-header">
         <div class="section-tag">منوی حضوری و آنلاین کافه</div>
         <h2 class="section-title">لیست کامل نوشیدنی‌ها، کیک‌ها و میان‌وعده‌ها</h2>
         
-        <!-- TABLE NUMBER BADGE -->
         {% if table_num %}
-        <div style="margin-top: 1rem; display: inline-block; background: rgba(255, 152, 0, 0.15); border: 1px solid var(--primary-glow); padding: 6px 18px; border-radius: 50px; color: var(--primary-glow); font-weight: 700;">
-            <i class="fa-solid fa-chair"></i> در حال سفارش برای میز شماره {{ table_num }}
+        <div style="margin-top: 1rem; display: inline-block; background: rgba(240, 120, 46, 0.15); border: 1px solid var(--ember); padding: 6px 18px; border-radius: 50px; color: var(--ember); font-weight: 700;">
+            <i class="fa-solid fa-chair"></i> در حال مشاهده منو برای میز شماره {{ table_num }}
         </div>
         {% endif %}
     </div>
 
-    <!-- SEARCH & FILTERS BAR -->
-    <div style="max-width: 800px; margin: 0 auto 3rem auto;">
-        <form method="GET" action="{% url 'menu:index' %}" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+    <div style="max-width: 800px; margin: 0 auto 2rem auto;">
+        <form method="GET" action="{% url 'menu:index' %}" style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
             {% if selected_category %}
             <input type="hidden" name="category" value="{{ selected_category }}">
             {% endif %}
             
-            <div style="flex: 1; position: relative;">
-                <input type="text" name="q" value="{{ search_query }}" placeholder="جستجو در منو (اسپرسو، موکا، سان‌شاین...)" style="width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 50px; padding: 0.8rem 1.5rem; color: #FFF; font-size: 0.95rem;">
+            <div style="flex: 1; min-width: 220px; position: relative;">
+                <input type="text" name="q" value="{{ search_query }}" placeholder="جستجو در منو (اسپرسو، لاته، کروسان...)" style="width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 50px; padding: 0.75rem 1.4rem; color: #FFF; font-size: 0.92rem;">
             </div>
 
-            <select name="temp" onchange="this.form.submit()" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 50px; padding: 0.8rem 1.5rem; color: #FFF; font-size: 0.95rem;">
+            <select name="temp" onchange="this.form.submit()" style="background: var(--surface); border: 1px solid var(--line); border-radius: 50px; padding: 0.75rem 1.4rem; color: #FFF; font-size: 0.92rem; cursor: pointer;">
                 <option value="">همه نوشیدنی‌ها</option>
                 <option value="hot" {% if temp_filter == 'hot' %}selected{% endif %}>☕ سرو گرم</option>
                 <option value="cold" {% if temp_filter == 'cold' %}selected{% endif %}>🧊 سرو سرد</option>
             </select>
 
-            <button type="submit" class="btn btn-primary" style="border-radius: 50px;">
+            <button type="submit" class="btn btn-primary" style="border-radius: 50px; padding: 0.75rem 1.6rem;">
                 <i class="fa-solid fa-magnifying-glass"></i> جستجو
             </button>
         </form>
     </div>
 
-    <!-- CATEGORIES TABS -->
     <div class="category-tabs">
         <a href="{% url 'menu:index' %}" class="tab-btn {% if not selected_category %}active{% endif %}">
             همه آیتم‌ها
@@ -51,19 +49,31 @@
         {% endfor %}
     </div>
 
-    <!-- MENU ITEMS GRID -->
-    <div class="grid">
+    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto 1.5rem; padding: 0 0.5rem;">
+        <span style="font-size: 0.85rem; color: var(--text-muted);">نمایش {{ items|length }} آیتم در منو</span>
+        <div style="display: flex; gap: 6px; background: var(--surface); padding: 4px; border-radius: 8px; border: 1px solid var(--line);">
+            <button type="button" id="grid2ColBtn" class="btn btn-outline btn-sm active" style="padding: 4px 10px;" title="چیدمان دوتایی شبکه‌ای">
+                <i class="fa-solid fa-table-cells-large"></i>
+            </button>
+            <button type="button" id="grid1ColBtn" class="btn btn-outline btn-sm" style="padding: 4px 10px;" title="چیدمان تکی لیستی">
+                <i class="fa-solid fa-list"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="grid" id="menuGrid">
         {% for item in items %}
         <div class="glass-card">
-            {% if item.badge_text %}
-            <div class="card-badge">{{ item.badge_text }}</div>
-            {% endif %}
+            <div class="card-img-wrap">
+                {% if item.badge_text %}
+                <div class="card-badge">{{ item.badge_text }}</div>
+                {% endif %}
+                <img src="{{ item.get_image_url }}" alt="{{ item.title }}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=60';">
+            </div>
 
-            <img src="{{ item.get_image_url }}" alt="{{ item.title }}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=60';">
-
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.3rem;">
                 <h3 class="card-title">{{ item.title }}</h3>
-                <span style="font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.08); color: var(--text-muted);">
+                <span style="font-size: 0.72rem; padding: 2px 7px; border-radius: 4px; background: rgba(255,255,255,0.08); color: var(--text-muted); white-space: nowrap;">
                     {% if item.temperature == 'hot' %}☕ گرم{% elif item.temperature == 'cold' %}🧊 سرد{% else %}🍽️ خوراکی{% endif %}
                 </span>
             </div>
@@ -78,18 +88,39 @@
                     {% endif %}
                 </div>
                 {% if not item.is_active %}
-                <span style="color: #EF5350; font-size: 0.85rem; font-weight: 700;">ناموجود</span>
+                <span style="color: #EF5350; font-size: 0.8rem; font-weight: 700;">ناموجود</span>
                 {% else %}
-                <span style="color: #81C784; font-size: 0.85rem; font-weight: 700;">آماده سرو</span>
+                <span style="color: #4ade80; font-size: 0.8rem; font-weight: 700;">آماده سرو</span>
                 {% endif %}
             </div>
         </div>
         {% empty %}
         <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem;">
-            <i class="fa-solid fa-mug-hot" style="font-size: 3rem; margin-bottom: 1rem; color: var(--primary-glow);"></i>
+            <i class="fa-solid fa-mug-hot" style="font-size: 3rem; margin-bottom: 1rem; color: var(--ember);"></i>
             <h3>هیچ آیتمی در این دسته‌بندی یافت نشد.</h3>
         </div>
         {% endfor %}
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const grid2ColBtn = document.getElementById('grid2ColBtn');
+    const grid1ColBtn = document.getElementById('grid1ColBtn');
+    const menuGrid = document.getElementById('menuGrid');
+
+    if (grid2ColBtn && grid1ColBtn && menuGrid) {
+        grid1ColBtn.addEventListener('click', () => {
+            menuGrid.style.gridTemplateColumns = '1fr';
+            grid1ColBtn.classList.add('active');
+            grid2ColBtn.classList.remove('active');
+        });
+        grid2ColBtn.addEventListener('click', () => {
+            menuGrid.style.gridTemplateColumns = '';
+            grid2ColBtn.classList.add('active');
+            grid1ColBtn.classList.remove('active');
+        });
+    }
+</script>
 {% endblock %}

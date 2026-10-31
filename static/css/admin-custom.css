@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
+
+body, .main-header, .main-sidebar, .card, .table, .form-control, .btn {
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+body.theme-darkly {
+    background-color: #121417 !important;
+    color: #ECEDEF !important;
+}
+
+.main-sidebar {
+    background-color: #17181B !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.brand-link {
+    background-color: #1A1C20 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding: 12px 16px !important;
+}
+
+.nav-sidebar .nav-link.active {
+    background: linear-gradient(90deg, #F0782E 0%, #C25A19 100%) !important;
+    color: #FFF !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 14px rgba(240, 120, 46, 0.35) !important;
+}
+
+.card {
+    background-color: #1A1C20 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.card-header {
+    background-color: #1F2125 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding: 12px 18px !important;
+    font-weight: 700 !important;
+}
+
+.table th {
+    background-color: #1F2125 !important;
+    color: #F0782E !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    font-weight: 700 !important;
+}
+
+.table td {
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    vertical-align: middle !important;
+}
+
+.btn-warning, .btn-primary {
+    background-color: #F0782E !important;
+    border-color: #F0782E !important;
+    color: #FFF !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-warning:hover, .btn-primary:hover {
+    background-color: #FF9354 !important;
+    border-color: #FF9354 !important;
+    transform: translateY(-1px) !important;
+}
+
+.form-control, select, textarea {
+    background-color: #24272C !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #FFF !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+}
+
+.form-control:focus {
+    border-color: #F0782E !important;
+    box-shadow: 0 0 0 3px rgba(240, 120, 46, 0.25) !important;
+}
+
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding: 10px !important;
+    }
+    .form-row {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    .col-sm-3, .col-sm-9, .col-md-3, .col-md-9 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+    .table-responsive {
+        border: none !important;
+        overflow-x: auto !important;
+    }
+    .btn {
+        margin-bottom: 6px !important;
+    }
+    .changeform-tabs-item {
+        font-size: 0.85rem !important;
+        padding: 8px 10px !important;
+    }
+}

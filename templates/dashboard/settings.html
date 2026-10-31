@@ -55,6 +55,11 @@
                 </label>
 
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
+                    <input type="checkbox" name="is_order_tracking_active" {% if site_settings.is_order_tracking_active %}checked{% endif %}>
+                    <span>بخش پیگیری سفارش</span>
+                </label>
+
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
                     <input type="checkbox" name="is_quiz_active" {% if site_settings.is_quiz_active %}checked{% endif %}>
                     <span>تست هوشمند قهوه</span>
                 </label>

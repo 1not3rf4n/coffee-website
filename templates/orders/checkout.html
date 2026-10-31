@@ -3,39 +3,44 @@
 {% block title %}تکمیل اطلاعات ارسال و خرید | {{ site_settings.site_name }}{% endblock %}
 
 {% block content %}
-<section class="section" style="padding-top: 8rem;">
+<section class="section" style="padding-top: 7rem;">
     <div class="section-header">
         <div class="section-tag">مرحله نهایی خرید</div>
         <h2 class="section-title">ثبت مشخصات و آدرس تحویل سفارش</h2>
     </div>
 
-    <div class="glass-card" style="max-width: 650px; margin: 0 auto; padding: 2.5rem;">
+    <div class="glass-card" style="max-width: 620px; margin: 0 auto; padding: 2.2rem;">
         <form method="POST" action="{% url 'orders:checkout' %}">
             {% csrf_token %}
 
-            <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">نام و نام خانوادگی تحویل‌گیرنده:</label>
-                <input type="text" name="full_name" required placeholder="مثال: رضا احمدی" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.8rem 1.2rem; color: #FFF;">
+            <div style="margin-bottom: 1.4rem;">
+                <label style="display: block; font-weight: 700; margin-bottom: 0.5rem; color: var(--cream);">نام و نام خانوادگی تحویل‌گیرنده:</label>
+                <input type="text" name="full_name" required placeholder="مثال: رضا احمدی" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 0.85rem 1.2rem; color: #FFF; font-size: 0.95rem;">
             </div>
 
-            <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">شماره همراه جهت پیگیری مرسوله:</label>
-                <input type="tel" name="phone" required placeholder="مثال: 09120000000" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.8rem 1.2rem; color: #FFF;">
+            <div style="margin-bottom: 1.4rem;">
+                <label style="display: block; font-weight: 700; margin-bottom: 0.5rem; color: var(--cream);">شماره همراه جهت پیگیری و هماهنگی ارسال:</label>
+                <input type="tel" name="phone" required placeholder="مثال: 09121234567" pattern="09[0-9]{9}" title="لطفا شماره موبایل معتبر ۱۱ رقمی وارد نمایید" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 0.85rem 1.2rem; color: #FFF; font-size: 0.95rem; text-align: left; direction: ltr;">
             </div>
 
-            <div style="margin-bottom: 2rem;">
-                <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">آدرس دقیق پستی جهت ارسال:</label>
-                <textarea name="address" rows="3" required placeholder="استان، شهر، خیابان، پلاک، واحد..." style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.8rem 1.2rem; color: #FFF;"></textarea>
+            <div style="margin-bottom: 1.8rem;">
+                <label style="display: block; font-weight: 700; margin-bottom: 0.5rem; color: var(--cream);">آدرس دقیق پستی جهت ارسال:</label>
+                <textarea name="address" rows="3" required placeholder="استان، شهر، خیابان، کوچه، پلاک، زنگ، واحد..." style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 0.85rem 1.2rem; color: #FFF; font-size: 0.95rem; line-height: 1.6;"></textarea>
             </div>
 
-            <div style="background: rgba(255, 152, 0, 0.1); border: 1px solid var(--border-glow); padding: 1.2rem; border-radius: 12px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
-                <span>مبلغ قابل پرداخت سفارش:</span>
-                <span style="font-size: 1.6rem; font-weight: 800; color: var(--primary-glow);">{{ cart.get_total_price }} تومان</span>
+            <div style="background: rgba(240, 120, 46, 0.1); border: 1px solid var(--border-glow); padding: 1.2rem; border-radius: 12px; margin-bottom: 1.8rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--cream); font-weight: 600;">مبلغ قابل پرداخت سفارش:</span>
+                <span style="font-size: 1.5rem; font-weight: 900; color: var(--ember);">{{ cart.get_total_price }} تومان</span>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 0.9rem;">
-                <i class="fa-solid fa-credit-card"></i> ورود به درگاه پرداخت شاپرک
-            </button>
+            <div style="display: flex; gap: 1rem;">
+                <a href="{% url 'cart:detail' %}" class="btn btn-outline" style="flex: 1;">
+                    <i class="fa-solid fa-arrow-right"></i> بازگشت به سبد
+                </a>
+                <button type="submit" class="btn btn-primary" style="flex: 2; font-size: 1.05rem; padding: 0.85rem;">
+                    <i class="fa-solid fa-credit-card"></i> اتصال به درگاه پرداخت
+                </button>
+            </div>
         </form>
     </div>
 </section>

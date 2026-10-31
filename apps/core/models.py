@@ -14,6 +14,7 @@ class SiteSettings(models.Model):
     is_menu_active = models.BooleanField(default=True, verbose_name="فعال بودن منوی حضوری")
     is_shop_active = models.BooleanField(default=True, verbose_name="فعال بودن فروشگاه آنلاین")
     is_reservation_active = models.BooleanField(default=True, verbose_name="فعال بودن رزرو میز")
+    is_order_tracking_active = models.BooleanField(default=True, verbose_name="فعال بودن پیگیری سفارش")
     is_quiz_active = models.BooleanField(default=True, verbose_name="فعال بودن تست هوشمند قهوه")
     is_lucky_wheel_active = models.BooleanField(default=True, verbose_name="فعال بودن گردونه شانس")
     is_soundscape_active = models.BooleanField(default=True, verbose_name="فعال بودن پلیر صدای کافه")

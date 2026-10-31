@@ -3,41 +3,41 @@
 {% block title %}فروشگاه آنلاین دانه‌های برشته قهوه | {{ site_settings.site_name }}{% endblock %}
 
 {% block content %}
-<section class="section" style="padding-top: 8rem;">
+<section class="section" style="padding-top: 7rem;">
     <div class="section-header">
         <div class="section-tag">فروشگاه آنلاین اختصاصی</div>
-        <h2 class="section-title">خرید تازه دانه‌های قهوه، ماگ و تجهیزات دم‌آوری</h2>
-        <p style="color: var(--text-muted); margin-top: 0.5rem;">ارسال به سراسر کشور همراه با بسته‌بندی محکم و حفظ عطر تازه قهوه</p>
+        <h2 class="section-title">خرید تازه دانه‌های قهوه و اکسسوری دم‌آوری</h2>
+        <p style="color: var(--text-muted); margin-top: 0.5rem;">ارسال به سراسر کشور همراه با بسته‌بندی زیپ‌کیپ و سوپاپ حفظ عطر قهوه</p>
     </div>
 
-    <!-- ROAST FILTER TABS -->
     <div class="category-tabs">
-        <a href="{% url 'shop:index' %}" class="tab-btn {% if not selected_roast %}active{% endif %}">همه درجه‌های برشته‌کاری</a>
+        <a href="{% url 'shop:index' %}" class="tab-btn {% if not selected_roast %}active{% endif %}">همه درجه‌های رست</a>
         <a href="{% url 'shop:index' %}?roast=light" class="tab-btn {% if selected_roast == 'light' %}active{% endif %}">🌱 Light Roast (سبک)</a>
         <a href="{% url 'shop:index' %}?roast=medium" class="tab-btn {% if selected_roast == 'medium' %}active{% endif %}">🔥 Medium Roast (متوسط)</a>
         <a href="{% url 'shop:index' %}?roast=dark" class="tab-btn {% if selected_roast == 'dark' %}active{% endif %}">🌑 Dark Roast (تیره)</a>
     </div>
 
-    <!-- PRODUCTS GRID -->
     <div class="grid">
         {% for product in products %}
         <div class="glass-card">
-            <a href="{% url 'shop:detail' product.slug %}">
-                <img src="{{ product.get_image_url }}" alt="{{ product.title }}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=60';">
-            </a>
+            <div class="card-img-wrap">
+                <a href="{% url 'shop:detail' product.slug %}">
+                    <img src="{{ product.get_image_url }}" alt="{{ product.title }}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=60';">
+                </a>
+            </div>
 
-            <div style="font-size: 0.8rem; color: var(--primary-glow); margin-bottom: 0.3rem;">
+            <div style="font-size: 0.78rem; color: var(--ember); margin-bottom: 0.2rem; font-weight: 600;">
                 {{ product.get_roast_level_display }}
             </div>
 
             <h3 class="card-title"><a href="{% url 'shop:detail' product.slug %}">{{ product.title }}</a></h3>
             <p class="card-desc">{{ product.flavor_notes|default:product.description|truncatewords:14 }}</p>
 
-            <!-- FLAVOR BAR INDICATORS -->
-            <div style="margin-bottom: 1rem; font-size: 0.8rem; color: var(--text-muted);">
-                <div style="display:flex; justify-content:space-between; margin-bottom: 4px;">
+            <div style="margin-bottom: 0.8rem; font-size: 0.75rem; color: var(--text-muted);">
+                <div style="display: flex; justify-content: space-between;">
                     <span>تلخی: {{ product.bitterness_level }}/۵</span>
                     <span>اسیدیته: {{ product.acidity_level }}/۵</span>
+                    <span>موجودی: {{ product.stock }} عدد</span>
                 </div>
             </div>
 
@@ -48,9 +48,13 @@
                     <span class="old-price">{{ product.price }}</span>
                     {% endif %}
                 </div>
-                <button class="btn btn-primary add-to-cart-btn" data-product-id="{{ product.id }}" style="padding: 6px 14px; font-size: 0.85rem;">
+                {% if product.stock > 0 %}
+                <button class="btn btn-primary btn-sm add-to-cart-btn" data-product-id="{{ product.id }}">
                     <i class="fa-solid fa-cart-plus"></i> خرید
                 </button>
+                {% else %}
+                <span style="color: #ef4444; font-size: 0.8rem; font-weight: 700;">ناموجود</span>
+                {% endif %}
             </div>
         </div>
         {% empty %}

@@ -36,3 +36,16 @@ def cart_remove_api(request):
         'cart_total_items': len(cart),
         'cart_total_price': cart.get_total_price()
     })
+
+@require_POST
+def cart_update_api(request):
+    item_key = request.POST.get('item_key')
+    quantity = int(request.POST.get('quantity', 1))
+    cart = Cart(request)
+    cart.update(item_key, quantity)
+    
+    return JsonResponse({
+        'success': True,
+        'cart_total_items': len(cart),
+        'cart_total_price': cart.get_total_price()
+    })

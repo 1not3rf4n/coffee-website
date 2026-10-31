@@ -7,7 +7,7 @@ from .models import SiteSettings, LuckyWheelCoupon
 class SiteSettingsAdmin(admin.ModelAdmin):
     list_display = ('site_name', 'phone', 'theme_swatch',
                     'is_hero_animation_active', 'is_menu_active',
-                    'is_shop_active', 'is_reservation_active')
+                    'is_shop_active', 'is_reservation_active', 'is_order_tracking_active')
 
     fieldsets = (
         ('برندینگ', {
@@ -19,6 +19,7 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         ('بخش‌های فعال سایت', {
             'fields': ('is_hero_animation_active', 'is_menu_active',
                        'is_shop_active', 'is_reservation_active',
+                       'is_order_tracking_active',
                        'is_quiz_active', 'is_lucky_wheel_active',
                        'is_soundscape_active'),
         }),

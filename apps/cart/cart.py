@@ -16,19 +16,29 @@ class Cart:
         
         if item_key not in self.cart:
             self.cart[item_key] = {
+                'key': item_key,
                 'product_id': product.id,
                 'title': product.title,
                 'price': product.final_price,
                 'quantity': 0,
                 'grind_type': grind_type,
-                'image_url': product.image.url if product.image else (product.image_url or '/static/images/default-coffee.jpg')
+                'image_url': product.image.url if product.image else (product.image_url or 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=60')
             }
         
+        self.cart[item_key]['key'] = item_key
         if override_quantity:
-            self.cart[item_key]['quantity'] = quantity
+            self.cart[item_key]['quantity'] = max(1, quantity)
         else:
             self.cart[item_key]['quantity'] += quantity
         self.save()
+
+    def update(self, item_key, quantity):
+        if item_key in self.cart:
+            if quantity <= 0:
+                self.remove(item_key)
+            else:
+                self.cart[item_key]['quantity'] = quantity
+                self.save()
 
     def save(self):
         self.session.modified = True
@@ -39,7 +49,8 @@ class Cart:
             self.save()
 
     def __iter__(self):
-        for item in self.cart.values():
+        for key, item in self.cart.items():
+            item['key'] = key
             item['total_price'] = item['price'] * item['quantity']
             yield item
 

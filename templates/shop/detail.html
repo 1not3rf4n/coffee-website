@@ -3,57 +3,80 @@
 {% block title %}{{ product.title }} | فروشگاه کافه {{ site_settings.site_name }}{% endblock %}
 
 {% block content %}
-<section class="section" style="padding-top: 8rem;">
-    <div class="glass-card" style="max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; padding: 2.5rem;">
-        <div>
-            <img src="{{ product.get_image_url }}" alt="{{ product.title }}" style="width: 100%; border-radius: 16px; border: 1px solid var(--border-glow);" onerror="this.src='https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=60';">
-        </div>
-
-        <div>
-            <span style="color: var(--primary-glow); font-size: 0.9rem; font-weight: 700;">{{ product.category.title }}</span>
-            <h1 style="font-size: 2rem; color: #FFF; margin: 0.5rem 0 1rem 0;">{{ product.title }}</h1>
-            
-            <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 1.5rem;">{{ product.description }}</p>
-
-            {% if product.flavor_notes %}
-            <div style="background: rgba(255,152,0,0.1); border: 1px solid var(--border-color); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
-                <strong style="color: var(--primary-glow);">طعم‌یادها (Flavor Notes):</strong>
-                <p style="margin: 4px 0 0 0; color: #FFF;">{{ product.flavor_notes }}</p>
-            </div>
-            {% endif %}
-
-            <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">نوع آسیاب (Grind Level):</label>
-                <select id="grindTypeSelect" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.8rem; color: #FFF;">
-                    <option value="دانه کامل">دانه کامل (Whole Bean)</option>
-                    <option value="آسیاب اسپرسو">آسیاب اسپرسو (Espresso)</option>
-                    <option value="آسیاب موکاپات">آسیاب موکاپات (MokaPot)</option>
-                    <option value="آسیاب فرانسه / کمکس">آسیاب فرانسه / کمکس (Filter/Pour-over)</option>
-                </select>
+<section class="section" style="padding-top: 7rem;">
+    <div class="glass-card product-detail-card" style="max-width: 900px; margin: 0 auto; padding: 2rem;">
+        <div class="product-detail-grid">
+            <div>
+                <img src="{{ product.get_image_url }}" alt="{{ product.title }}" style="width: 100%; border-radius: 16px; border: 1px solid var(--line); object-fit: cover; max-height: 420px;" onerror="this.src='https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=60';">
             </div>
 
-            <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
-                <div>
-                    <span style="display: block; font-size: 0.85rem; color: var(--text-muted);">قیمت نهایی:</span>
-                    <span style="font-size: 1.8rem; font-weight: 800; color: var(--primary-glow);">{{ product.final_price }} تومان</span>
+            <div>
+                <span style="color: var(--ember); font-size: 0.85rem; font-weight: 700;">{{ product.category.title }}</span>
+                <h1 style="font-size: 1.8rem; color: var(--cream); margin: 0.4rem 0 0.8rem 0;">{{ product.title }}</h1>
+                
+                <p style="color: var(--text-muted); line-height: 1.7; margin-bottom: 1.2rem; font-size: 0.92rem;">{{ product.description }}</p>
+
+                {% if product.flavor_notes %}
+                <div style="background: rgba(240, 120, 46, 0.08); border: 1px solid rgba(240, 120, 46, 0.2); padding: 0.9rem; border-radius: 12px; margin-bottom: 1.2rem;">
+                    <strong style="color: var(--ember); font-size: 0.85rem;">طعم‌یادها (Flavor Notes):</strong>
+                    <p style="margin: 4px 0 0 0; color: #FFF; font-size: 0.88rem;">{{ product.flavor_notes }}</p>
+                </div>
+                {% endif %}
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.5rem; color: var(--cream); font-size: 0.88rem;">نوع آسیاب (Grind Level):</label>
+                    <select id="grindTypeSelect" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 0.75rem 1rem; color: #FFF; font-size: 0.9rem;">
+                        <option value="دانه کامل">دانه کامل (Whole Bean)</option>
+                        <option value="آسیاب اسپرسو">آسیاب اسپرسو (Espresso)</option>
+                        <option value="آسیاب موکاپات">آسیاب موکاپات (MokaPot)</option>
+                        <option value="آسیاب فرانسه / کمکس">آسیاب فرانسه / کمکس (Filter/Pour-over)</option>
+                    </select>
                 </div>
 
-                <button class="btn btn-primary add-to-cart-btn" data-product-id="{{ product.id }}" style="padding: 0.9rem 2rem; font-size: 1.05rem;">
-                    <i class="fa-solid fa-cart-plus"></i> افزودن به سبد خرید
-                </button>
+                <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 1.2rem; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">قیمت محصول:</span>
+                        <span style="font-size: 1.6rem; font-weight: 800; color: var(--ember);">{{ product.final_price }} تومان</span>
+                    </div>
+
+                    {% if product.stock > 0 %}
+                    <button class="btn btn-primary add-to-cart-btn" data-product-id="{{ product.id }}" style="padding: 0.8rem 1.8rem;">
+                        <i class="fa-solid fa-cart-plus"></i> افزودن به سبد خرید
+                    </button>
+                    {% else %}
+                    <span style="color: #ef4444; font-weight: 700;">ناموجود</span>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </section>
+
+<style>
+.product-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+}
+@media (max-width: 768px) {
+    .product-detail-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+</style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.querySelector('.add-to-cart-btn').addEventListener('click', function() {
-        const select = document.getElementById('grindTypeSelect');
-        if (select) {
-            this.dataset.grind = select.value;
-        }
-    });
+    const addBtn = document.querySelector('.add-to-cart-btn');
+    if (addBtn) {
+        addBtn.addEventListener('click', function() {
+            const select = document.getElementById('grindTypeSelect');
+            if (select) {
+                this.dataset.grind = select.value;
+            }
+        });
+    }
 </script>
 {% endblock %}

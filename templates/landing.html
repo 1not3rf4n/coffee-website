@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ site_settings.site_name }} | برشته‌کاری تخصصی قهوه{% endblock %}
+{% block title %}{{ site_settings.site_name }} | {{ site_settings.tagline }}{% endblock %}
 
 {% block extra_head %}
 {% if site_settings.is_hero_animation_active %}
@@ -16,69 +16,62 @@
 {% endblock %}
 
 {% block content %}
-<!-- HERO SECTION -->
-{% if site_settings.is_hero_animation_active %}
 <section class="hero-container">
-    <div class="hero-content visible" id="heroContent">
-        <!-- LIVE STATUS BADGE -->
+    <div class="hero-content" id="heroContent">
         <div class="live-badge {% if not live_status.is_open %}closed{% endif %}">
             <div class="live-dot"></div>
             <span>{{ live_status.status_text }}</span>
         </div>
-
         <h1 class="hero-title">{{ site_settings.site_name }}</h1>
         <p class="hero-subtitle">{{ site_settings.tagline }}</p>
-
         <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
             {% if site_settings.is_menu_active %}
-            <a href="{% url 'menu:index' %}" class="btn btn-primary" style="font-size: 1.05rem; padding: 0.85rem 2.4rem;">
+            <a href="{% url 'menu:index' %}" class="btn btn-primary" style="font-size: 1.05rem; padding: 0.85rem 2.2rem;">
                 <i class="fa-solid fa-mug-saucer"></i> مشاهده منوی کافه
             </a>
             {% endif %}
+            {% if site_settings.is_shop_active %}
+            <a href="{% url 'shop:index' %}" class="btn btn-outline" style="font-size: 1.05rem; padding: 0.85rem 2.2rem;">
+                <i class="fa-solid fa-bag-shopping"></i> خرید دانه‌های برشته
+            </a>
+            {% endif %}
             {% if site_settings.is_reservation_active %}
-            <a href="{% url 'reservations:index' %}" class="btn btn-outline" style="font-size: 1.05rem; padding: 0.85rem 2.4rem;">
+            <a href="{% url 'reservations:index' %}" class="btn btn-outline" style="font-size: 1.05rem; padding: 0.85rem 2.2rem;">
                 <i class="fa-solid fa-chair"></i> رزرو آنلاین میز
             </a>
             {% endif %}
         </div>
     </div>
 </section>
-{% endif %}
 
-<!-- FEATURED MENU ITEMS -->
 {% if site_settings.is_menu_active %}
 <section class="section">
     <div class="section-header">
         <div class="section-tag">منوی حضوری کافه</div>
         <h2 class="section-title">نوشیدنی‌ها و خوراکی‌های برتر</h2>
+        <p style="color: var(--text-muted); margin-top: 0.5rem;">عصاره‌گیری تخصصی با مرغوب‌ترین دانه‌های ۱۰۰٪ عربیکا</p>
     </div>
-
     <div class="grid">
         {% for item in featured_menu_items %}
         <div class="glass-card">
-            {% if item.badge_text %}
-            <div class="card-badge">{{ item.badge_text }}</div>
-            {% endif %}
-            <img src="{{ item.get_image_url }}" alt="{{ item.title }}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=60';">
+            <div class="card-img-wrap">
+                {% if item.badge_text %}<div class="card-badge">{{ item.badge_text }}</div>{% endif %}
+                <img src="{{ item.get_image_url }}" alt="{{ item.title }}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=60';">
+            </div>
             <h3 class="card-title">{{ item.title }}</h3>
             <p class="card-desc">{{ item.description|truncatewords:14 }}</p>
             <div class="card-footer">
                 <div>
                     <span class="card-price">{{ item.final_price }} تومان</span>
-                    {% if item.discount_percent > 0 %}
-                    <span class="old-price">{{ item.price }}</span>
-                    {% endif %}
+                    {% if item.discount_percent > 0 %}<span class="old-price">{{ item.price }}</span>{% endif %}
                 </div>
-                <a href="{% url 'menu:index' %}" class="btn btn-outline" style="padding: 5px 14px; font-size: 0.82rem;">سفارش</a>
+                <a href="{% url 'menu:index' %}" class="btn btn-outline btn-sm">سفارش</a>
             </div>
         </div>
         {% empty %}
-        <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">
-            آیتمی جهت نمایش وجود ندارد.
-        </div>
+        <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">آیتمی جهت نمایش وجود ندارد.</div>
         {% endfor %}
     </div>
-
     <div style="text-align: center; margin-top: 2.5rem;">
         <a href="{% url 'menu:index' %}" class="btn btn-outline" style="padding: 0.8rem 2.2rem; font-size: 0.95rem;">
             مشاهده کامل منو <i class="fa-solid fa-arrow-left"></i>
@@ -87,28 +80,70 @@
 </section>
 {% endif %}
 
-<!-- E-COMMERCE SHOP PREVIEW -->
 {% if site_settings.is_shop_active %}
-<section class="section">
+<section class="section" style="background: rgba(0,0,0,0.2);">
     <div class="section-header">
         <div class="section-tag">فروشگاه آنلاین</div>
         <h2 class="section-title">تازه‌ترین دانه‌های برشته‌کاری شده</h2>
+        <p style="color: var(--text-muted); margin-top: 0.5rem;">ارسال سریع بسته تازه با حفظ عطر اصیل</p>
     </div>
-
     <div class="grid">
         {% for product in featured_products %}
         <div class="glass-card">
-            <img src="{{ product.get_image_url }}" alt="{{ product.title }}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=60';">
-            <h3 class="card-title">{{ product.title }}</h3>
+            <div class="card-img-wrap">
+                <a href="{% url 'shop:detail' product.slug %}">
+                    <img src="{{ product.get_image_url }}" alt="{{ product.title }}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=60';">
+                </a>
+            </div>
+            <h3 class="card-title"><a href="{% url 'shop:detail' product.slug %}">{{ product.title }}</a></h3>
             <p class="card-desc">{{ product.flavor_notes|default:product.description|truncatewords:12 }}</p>
             <div class="card-footer">
                 <span class="card-price">{{ product.final_price }} تومان</span>
-                <button class="btn btn-primary add-to-cart-btn" data-product-id="{{ product.id }}" style="padding: 5px 14px; font-size: 0.82rem;">
+                <button class="btn btn-primary btn-sm add-to-cart-btn" data-product-id="{{ product.id }}">
                     <i class="fa-solid fa-cart-plus"></i> خرید
                 </button>
             </div>
         </div>
         {% endfor %}
+    </div>
+    <div style="text-align: center; margin-top: 2.5rem;">
+        <a href="{% url 'shop:index' %}" class="btn btn-primary" style="padding: 0.8rem 2.2rem; font-size: 0.95rem;">
+            ورود به فروشگاه آنلاین <i class="fa-solid fa-arrow-left"></i>
+        </a>
+    </div>
+</section>
+{% endif %}
+
+{% if site_settings.is_lucky_wheel_active %}
+<section class="wheel-section">
+    <div class="section-header" style="margin-bottom: 2rem;">
+        <div class="section-tag">شانس امروز شما</div>
+        <h2 class="section-title">گردونه شانس و جوایز باریستا</h2>
+        <p style="color: var(--text-muted); margin-top: 0.4rem;">گردونه را بچرخانید و کد تخفیف ویژه خرید قهوه هدیه بگیرید!</p>
+    </div>
+
+    <div class="wheel-container">
+        <div class="wheel-stage">
+            <div class="wheel-pointer"></div>
+            <canvas id="wheelCanvas" class="wheel-canvas" width="300" height="300"></canvas>
+            <button type="button" class="wheel-center-btn" id="spinWheelBtn">چرخش</button>
+        </div>
+
+        <div class="wheel-info">
+            <h3 style="color: var(--cream); font-size: 1.3rem; margin-bottom: 0.6rem;">جایزه ویژه هر روز</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.7;">
+                با هر بار چرخش گردونه، یک کد تخفیف آنی به شما تعلق می‌گیرد که می‌توانید در صفحه سبد خرید و تسویه‌حساب فروشگاه استفاده کنید.
+            </p>
+            
+            <div class="wheel-result-card" id="wheelResult">
+                <div style="font-size: 0.85rem; color: var(--ember); font-weight: 700; margin-bottom: 4px;">کد تخفیف اختصاصی شما:</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; margin-bottom: 8px;">
+                    <span id="wheelCodeText" style="font-weight: 900; font-size: 1.2rem; letter-spacing: 0.1em; color: #FFF;">COFFEE10</span>
+                    <button type="button" id="copyWheelCodeBtn" class="btn btn-outline btn-sm" style="padding: 4px 10px;">کپی</button>
+                </div>
+                <div id="wheelPrizeTitle" style="font-size: 0.8rem; color: var(--text-muted);">۱۰٪ تخفیف اختصاصی باریستا</div>
+            </div>
+        </div>
     </div>
 </section>
 {% endif %}

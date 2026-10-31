@@ -59,6 +59,10 @@ def payment_verify_view(request, order_id):
         order.status = 'paid'
         order.tracking_code = f"TRK-{random.randint(100000, 999999)}"
         order.save()
+        for item in order.items.all():
+            if item.product:
+                item.product.stock = max(0, item.product.stock - item.quantity)
+                item.product.save()
         messages.success(request, "پرداخت با موفقیت انجام شد!")
         return redirect('orders:order_success', order_id=order.id)
     else:

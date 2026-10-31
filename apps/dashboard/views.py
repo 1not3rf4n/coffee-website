@@ -45,6 +45,7 @@ def dashboard_settings_view(request):
         site_settings.is_menu_active = request.POST.get('is_menu_active') == 'on'
         site_settings.is_shop_active = request.POST.get('is_shop_active') == 'on'
         site_settings.is_reservation_active = request.POST.get('is_reservation_active') == 'on'
+        site_settings.is_order_tracking_active = request.POST.get('is_order_tracking_active') == 'on'
         site_settings.is_quiz_active = request.POST.get('is_quiz_active') == 'on'
         site_settings.is_lucky_wheel_active = request.POST.get('is_lucky_wheel_active') == 'on'
         site_settings.is_soundscape_active = request.POST.get('is_soundscape_active') == 'on'

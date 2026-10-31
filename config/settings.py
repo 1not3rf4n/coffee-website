@@ -85,20 +85,43 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # ---------------------------------------------------------------------------
-# Database Configuration — سازگار با سرورهای Read-Only
+# Database Configuration — سازگار با سرورهای Read-Only و Persistent
 # ---------------------------------------------------------------------------
 ORIGINAL_DB = BASE_DIR / 'db.sqlite3'
 TMP_DIR = Path(tempfile.gettempdir())
-WRITABLE_DB = TMP_DIR / 'cafeerfan_db.sqlite3'
 
-if ORIGINAL_DB.exists():
+def resolve_db_path():
     try:
-        if not WRITABLE_DB.exists() or WRITABLE_DB.stat().st_size == 0:
-            shutil.copy2(ORIGINAL_DB, WRITABLE_DB)
+        test_file = BASE_DIR / '.test_rw'
+        test_file.touch()
+        test_file.unlink()
+        return ORIGINAL_DB
     except Exception:
         pass
 
-DB_PATH = WRITABLE_DB if WRITABLE_DB.exists() else ORIGINAL_DB
+    candidates = [
+        BASE_DIR.parent.parent / 'data' / 'cafeerfan_db.sqlite3',
+        BASE_DIR.parent / 'cafeerfan_db.sqlite3',
+        Path.home() / 'cafeerfan_db.sqlite3',
+        Path('/var/tmp/cafeerfan_db.sqlite3'),
+        TMP_DIR / 'cafeerfan_db.sqlite3',
+    ]
+
+    for cand in candidates:
+        try:
+            cand.parent.mkdir(parents=True, exist_ok=True)
+            if not cand.exists() or cand.stat().st_size == 0:
+                if ORIGINAL_DB.exists():
+                    shutil.copy2(ORIGINAL_DB, cand)
+            with open(cand, 'a+'):
+                pass
+            return cand
+        except Exception:
+            continue
+
+    return ORIGINAL_DB
+
+DB_PATH = resolve_db_path()
 
 DATABASES = {
     'default': {
@@ -107,7 +130,6 @@ DATABASES = {
     }
 }
 
-# جلسات (Sessions) مبتنی بر کوکی امن بدون نیاز به نوشتن دیتابیس
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -134,15 +156,34 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# WhiteNoise — فشرده‌سازی و cache فایل‌های استاتیک در production
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = TMP_DIR / 'media'
-try:
-    MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
-except Exception:
-    pass
+
+def resolve_media_root():
+    try:
+        test_dir = BASE_DIR / 'media'
+        test_dir.mkdir(parents=True, exist_ok=True)
+        return test_dir
+    except Exception:
+        pass
+
+    candidates = [
+        BASE_DIR.parent.parent / 'media',
+        BASE_DIR.parent / 'media',
+        Path.home() / 'cafeerfan_media',
+        Path('/var/tmp/cafeerfan_media'),
+        TMP_DIR / 'media',
+    ]
+    for cand in candidates:
+        try:
+            cand.mkdir(parents=True, exist_ok=True)
+            return cand
+        except Exception:
+            continue
+    return TMP_DIR / 'media'
+
+MEDIA_ROOT = resolve_media_root()
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -195,6 +236,7 @@ JAZZMIN_SETTINGS = {
     "welcome_sign": "به پنل مدیریت نوین کافه خوش آمدید ☕",
     "copyright": "نوین کافه",
     "search_model": ["orders.Order", "shop.Product"],
+    "custom_css": "css/admin-custom.css",
 
     # Top menu links
     "topmenu_links": [

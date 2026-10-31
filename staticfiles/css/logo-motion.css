@@ -1,50 +1,39 @@
-/* ================================================================
-   LOGO MOTION — coffee-fill intro (GSAP-driven)
-
-   Technique: the real brand mark is used as an alpha MASK. Layers are
-   painted and then clipped to the exact logo silhouette, so every edge
-   stays razor-sharp — nothing is redrawn or faked.
-
-   Layer stack (bottom -> top), all masked to the logo:
-     .lm-ghost   dim outline of the empty logo
-     .lm-coffee  espresso that rises from the base to fill the mark
-     .lm-shine   a diagonal light sweep across the filled logo
-   Above the mask: steam, glow, wordmark, skip, progress.
-   ================================================================ */
-
 html.lm-playing,
 html.lm-playing body {
     overflow: hidden;
     height: 100%;
 }
 
-/* Site starts hidden; revealed at the finale, staggered top-to-bottom. */
+html.lm-playing body > header.site-header,
 html.lm-playing body > nav.navbar,
 html.lm-playing body > main,
 html.lm-playing body > footer.footer,
+html.lm-playing body > .bottom-nav,
 html.lm-playing body > .soundscape-widget {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(24px);
     will-change: opacity, transform;
 }
 
+html.lm-reveal body > header.site-header,
 html.lm-reveal body > nav.navbar,
 html.lm-reveal body > main,
 html.lm-reveal body > footer.footer,
+html.lm-reveal body > .bottom-nav,
 html.lm-reveal body > .soundscape-widget {
     opacity: 1;
     transform: translateY(0);
     transition:
-        opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-        transform 1.05s cubic-bezier(0.16, 1, 0.3, 1);
+        opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.95s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-html.lm-reveal body > nav.navbar         { transition-delay: 0.00s; }
-html.lm-reveal body > main               { transition-delay: 0.10s; }
-html.lm-reveal body > .soundscape-widget { transition-delay: 0.26s; }
-html.lm-reveal body > footer.footer      { transition-delay: 0.32s; }
-
-/* ---------------- Overlay curtain ---------------- */
+html.lm-reveal body > header.site-header   { transition-delay: 0.00s; }
+html.lm-reveal body > nav.navbar          { transition-delay: 0.00s; }
+html.lm-reveal body > main                { transition-delay: 0.08s; }
+html.lm-reveal body > .bottom-nav         { transition-delay: 0.16s; }
+html.lm-reveal body > .soundscape-widget  { transition-delay: 0.20s; }
+html.lm-reveal body > footer.footer       { transition-delay: 0.25s; }
 
 .lm-overlay {
     position: fixed;
@@ -54,39 +43,35 @@ html.lm-reveal body > footer.footer      { transition-delay: 0.32s; }
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background:
-        radial-gradient(circle at 50% 42%, #1c1f26 0%, #0d0f12 55%, #050608 100%);
+    background: radial-gradient(circle at 50% 48%, #1c1f26 0%, #0d0f12 55%, #050608 100%);
+    direction: rtl;
 }
 
-/* Warm ambient roast light; its opacity is driven by GSAP. */
 .lm-glow {
     position: absolute;
     left: 50%;
-    top: 44%;
-    width: 620px;
-    height: 620px;
+    top: 48%;
+    width: clamp(280px, 60vw, 560px);
+    height: clamp(280px, 60vw, 560px);
     transform: translate(-50%, -50%);
     pointer-events: none;
     opacity: 0;
     background: radial-gradient(circle,
-        rgba(255, 122, 0, 0.34) 0%,
-        rgba(255, 90, 0, 0.12) 34%,
-        transparent 66%);
-    filter: blur(8px);
+        rgba(255, 122, 0, 0.35) 0%,
+        rgba(255, 90, 0, 0.12) 38%,
+        transparent 70%);
+    filter: blur(12px);
     z-index: 1;
 }
 
-/* Vignette to focus the centre. */
 .lm-overlay::after {
     content: '';
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 4;
-    background: radial-gradient(circle at 50% 48%, transparent 42%, rgba(0, 0, 0, 0.58) 100%);
+    background: radial-gradient(circle at 50% 48%, transparent 40%, rgba(0, 0, 0, 0.6) 100%);
 }
-
-/* ---------------- Centre stage ---------------- */
 
 .lm-stage {
     position: relative;
@@ -94,19 +79,23 @@ html.lm-reveal body > footer.footer      { transition-delay: 0.32s; }
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.6rem;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    box-sizing: border-box;
+    gap: 1.4rem;
     transform: translateZ(0);
 }
 
-/* ---------------- The masked logo ----------------
-   Every .lm-mask child is clipped to the logo's alpha via mask-image,
-   set inline by the partial so the same PNG drives all layers. */
-
 .lm-logo-wrap {
     position: relative;
-    width: clamp(150px, 30vw, 250px);
-    aspect-ratio: 741 / 1050;   /* matches the extracted mark */
-    filter: drop-shadow(0 18px 46px rgba(255, 122, 0, 0.28));
+    margin: 0 auto;
+    width: clamp(120px, 26vw, 190px);
+    aspect-ratio: 741 / 1050;
+    filter: drop-shadow(0 16px 40px rgba(255, 122, 0, 0.28));
 }
 
 .lm-mask {
@@ -116,32 +105,26 @@ html.lm-reveal body > footer.footer      { transition-delay: 0.32s; }
     mask-image: var(--lm-logo);
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    mask-position: center;
+    -webkit-mask-position: center center;
+    mask-position: center center;
     -webkit-mask-size: contain;
     mask-size: contain;
 }
 
-/* Empty logo: a dim, cool outline before the pour. */
 .lm-ghost {
     background: linear-gradient(180deg, #3a2a20 0%, #2a1d15 100%);
     opacity: 0.28;
 }
 
-/* Coffee body: a vertical espresso gradient. We reveal it from the
-   bottom up by animating a clip-path inset from 100% -> 0%. */
 .lm-coffee {
-    background:
-        linear-gradient(180deg,
+    background: linear-gradient(180deg,
             #6a3d22 0%,
             #4a2714 30%,
             #35190c 70%,
             #24100a 100%);
-    clip-path: inset(100% 0 0 0);   /* GSAP animates the top inset to 0 */
+    clip-path: inset(100% 0 0 0);
 }
 
-/* Crema cap: a thin warm band that sits just under the current surface.
-   Positioned by GSAP in lockstep with the fill. */
 .lm-crema {
     background: linear-gradient(180deg,
         rgba(232, 183, 120, 0.0) 0%,
@@ -153,7 +136,6 @@ html.lm-reveal body > footer.footer      { transition-delay: 0.32s; }
     opacity: 0;
 }
 
-/* Diagonal light sweep that crosses the filled logo once. */
 .lm-shine {
     background: linear-gradient(115deg,
         transparent 30%,
@@ -162,48 +144,54 @@ html.lm-reveal body > footer.footer      { transition-delay: 0.32s; }
         rgba(255, 240, 214, 0.0) 60%,
         transparent 70%);
     background-size: 260% 260%;
-    background-position: 140% 0;   /* GSAP sweeps this to -40% */
+    background-position: 140% 0;
     mix-blend-mode: screen;
     opacity: 0;
 }
-
-/* ---------------- Wordmark ---------------- */
 
 .lm-word {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: center;
     text-align: center;
+    width: 100%;
+    gap: 0.6rem;
     opacity: 0;
+    margin: 0 auto;
 }
 
 .lm-word-name {
-    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    font-size: clamp(1.4rem, 4.2vw, 2.2rem);
     font-weight: 900;
-    letter-spacing: 0.12em;
-    color: var(--orange-primary, #ff7a00);
+    letter-spacing: 0;
+    color: var(--orange-primary, #F0782E);
     text-shadow:
-        0 0 22px rgba(255, 122, 0, 0.5),
-        0 0 60px rgba(255, 122, 0, 0.22);
+        0 0 20px rgba(240, 120, 46, 0.45),
+        0 0 50px rgba(240, 120, 46, 0.2);
+    text-align: center;
+    width: 100%;
+    line-height: 1.3;
 }
 
 .lm-word-rule {
-    width: clamp(120px, 22vw, 220px);
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--orange-primary, #ff7a00), transparent);
+    width: clamp(90px, 20vw, 160px);
+    height: 2px;
+    margin: 0 auto;
+    background: linear-gradient(90deg, transparent, var(--orange-primary, #F0782E), transparent);
     transform: scaleX(0);
     transform-origin: center;
 }
 
 .lm-word-tag {
-    font-size: clamp(0.72rem, 1.7vw, 0.92rem);
+    font-size: clamp(0.78rem, 1.8vw, 0.95rem);
     font-weight: 600;
-    letter-spacing: 0.04em;
-    color: rgba(226, 232, 240, 0.62);
+    letter-spacing: 0;
+    color: rgba(226, 232, 240, 0.72);
+    text-align: center;
+    width: 100%;
+    line-height: 1.4;
 }
-
-/* ---------------- Skip + progress ---------------- */
 
 .lm-skip {
     position: absolute;
@@ -213,62 +201,43 @@ html.lm-reveal body > footer.footer      { transition-delay: 0.32s; }
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 20px;
+    padding: 8px 18px;
     border-radius: 50px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(20, 23, 29, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(20, 23, 29, 0.78);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    color: rgba(226, 232, 240, 0.72);
+    color: rgba(226, 232, 240, 0.85);
     font-family: inherit;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     opacity: 0;
-    transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+    transition: all 0.25s ease;
 }
 
 .lm-skip:hover {
-    color: var(--orange-primary, #ff7a00);
-    border-color: rgba(255, 122, 0, 0.45);
-    background: rgba(255, 122, 0, 0.1);
-}
-
-.lm-skip:focus-visible {
-    outline: 2px solid var(--orange-primary, #ff7a00);
-    outline-offset: 3px;
+    background: rgba(240, 120, 46, 0.2);
+    border-color: var(--orange-primary, #F0782E);
+    color: #FFF;
 }
 
 .lm-progress {
     position: absolute;
-    left: 0;
     bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    width: 0;
+    background: linear-gradient(90deg, #F0782E, #FF9354);
     z-index: 5;
-    height: 2px;
-    width: 0%;
-    background: linear-gradient(90deg, var(--orange-dark, #d45d00), var(--orange-glow, #ffa040));
-    box-shadow: 0 0 12px rgba(255, 122, 0, 0.7);
 }
 
 @media (max-width: 600px) {
-    .lm-skip { bottom: 1.2rem; left: 1.2rem; padding: 7px 16px; font-size: 0.8rem; }
-}
-
-/* ---------------- Reduced motion ---------------- */
-
-@media (prefers-reduced-motion: reduce) {
-    .lm-coffee { clip-path: inset(0 0 0 0); }
-    .lm-ghost { opacity: 0.28; }
-    .lm-word { opacity: 1; }
-    .lm-word-rule { transform: scaleX(1); }
-    .lm-shine, .lm-crema { display: none; }
-
-    html.lm-reveal body > nav.navbar,
-    html.lm-reveal body > main,
-    html.lm-reveal body > footer.footer,
-    html.lm-reveal body > .soundscape-widget {
-        transition-duration: 0.25s;
-        transition-delay: 0s;
-        transform: none;
+    .lm-skip {
+        bottom: 1.5rem;
+        left: 1.5rem;
+        padding: 6px 14px;
+        font-size: 0.8rem;
     }
 }

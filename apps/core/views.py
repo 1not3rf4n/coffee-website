@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from datetime import datetime, time
+from django.utils import timezone
 import random
 
 from apps.core.models import SiteSettings, LuckyWheelCoupon
@@ -9,7 +10,7 @@ from apps.shop.models import Product
 
 def get_live_status(site_settings):
     try:
-        now = datetime.now().time()
+        now = timezone.localtime().time()
         open_h, open_m = map(int, site_settings.open_time.split(':'))
         close_h, close_m = map(int, site_settings.close_time.split(':'))
         
@@ -19,7 +20,7 @@ def get_live_status(site_settings):
         is_open = open_t <= now <= close_t
         return {
             'is_open': is_open,
-            'status_text': 'هم‌اکنون باز است (در حال پذیرش مشتریان)' if is_open else 'هم‌اکنون بسته است',
+            'status_text': 'هم‌اکنون باز است (پذیرش حضوری و آنلاین)' if is_open else 'هم‌اکنون کافه بسته است',
             'open_time': site_settings.open_time,
             'close_time': site_settings.close_time
         }
