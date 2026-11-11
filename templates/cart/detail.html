@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load coffee_tags %}
 
 {% block title %}سبد خرید شما | {{ site_settings.site_name }}{% endblock %}
 
@@ -20,7 +21,7 @@
                         <h4 style="color: var(--cream); font-size: 1.05rem; margin-bottom: 4px;">{{ item.title }}</h4>
                         <span style="font-size: 0.8rem; color: var(--ember); background: rgba(240, 120, 46, 0.1); padding: 2px 8px; border-radius: 4px;">{{ item.grind_type }}</span>
                         <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
-                            قیمت واحد: {{ item.price }} تومان
+                            قیمت واحد: {{ item.price|toman }}
                         </div>
                     </div>
                 </div>
@@ -33,7 +34,7 @@
                     </div>
 
                     <div style="text-align: left; min-width: 100px;">
-                        <span class="cart-line-total" style="font-weight: 800; color: var(--ember); font-size: 1.1rem; display: block;">{{ item.total_price }} تومان</span>
+                        <span class="cart-line-total" style="font-weight: 800; color: var(--ember); font-size: 1.1rem; display: block;">{{ item.total_price|toman }}</span>
                     </div>
 
                     <button type="button" class="btn btn-outline btn-sm cart-item-del" style="border-color: rgba(239, 68, 68, 0.3); color: #ef4444; padding: 6px 10px;" title="حذف از سبد">
@@ -47,7 +48,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 2px dashed var(--line); padding-top: 1.5rem; flex-wrap: wrap; gap: 1rem;">
             <div>
                 <span style="display: block; font-size: 0.9rem; color: var(--text-muted);">جمع کل سبد خرید:</span>
-                <span id="cartTotalPrice" style="font-size: 1.8rem; font-weight: 900; color: var(--ember);">{{ cart_total_price }} تومان</span>
+                <span id="cartTotalPrice" style="font-size: 1.8rem; font-weight: 900; color: var(--ember);">{{ cart_total_price|toman }}</span>
             </div>
 
             <div style="display: flex; gap: 0.8rem;">

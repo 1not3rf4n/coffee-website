@@ -139,42 +139,141 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    let audioElem = null;
-    let isPlayingAudio = false;
-    const soundToggle = document.getElementById('soundscapeToggle');
+    // ──────────────────────────────────────────────────────────────────────────
+    // سیستم پیشرفته موزیک کافه (پلی‌لیست، پخش تصادفی Shuffle و پخش خودکار Autoplay)
+    // ──────────────────────────────────────────────────────────────────────────
+    const musicPlayerElem = document.getElementById('cafeMusicPlayer');
+    const audioElement = document.getElementById('cafeAudioElement');
+    const musicToggleBtn = document.getElementById('musicToggleBtn');
+    const musicPlayIcon = document.getElementById('musicPlayIcon');
+    const musicNextBtn = document.getElementById('musicNextBtn');
+    const musicTitleDisplay = document.getElementById('musicTitleDisplay');
+    const musicArtistDisplay = document.getElementById('musicArtistDisplay');
+    const playlistDataScript = document.getElementById('cafePlaylistData');
 
-    if (soundToggle) {
-        soundToggle.addEventListener('click', () => {
-            if (!isPlayingAudio) {
-                startAudio();
-            } else {
-                stopAudio();
+    if (musicPlayerElem && audioElement && playlistDataScript) {
+        let playlist = [];
+        try {
+            playlist = JSON.parse(playlistDataScript.textContent || '[]');
+        } catch (e) {
+            playlist = [];
+        }
+
+        if (playlist.length === 0) {
+            playlist = [{
+                title: 'صدای ملایم کافه',
+                artist: 'نوین کافه',
+                url: 'https://assets.mixkit.co/music/preview/mixkit-chill-bro-494.mp3'
+            }];
+        }
+
+        let currentIndex = Math.floor(Math.random() * playlist.length);
+        let isPlaying = false;
+        let userHasPaused = sessionStorage.getItem('cafe_music_user_paused') === 'true';
+        const shouldAutoplay = musicPlayerElem.dataset.autoplay === 'true';
+
+        audioElement.volume = 0.40;
+
+        function loadTrack(index) {
+            if (index < 0 || index >= playlist.length) index = 0;
+            currentIndex = index;
+            const track = playlist[currentIndex];
+            audioElement.src = track.url;
+            if (musicTitleDisplay) musicTitleDisplay.textContent = track.title;
+            if (musicArtistDisplay) musicArtistDisplay.textContent = track.artist || 'کافه عرفان';
+        }
+
+        function playMusic() {
+            if (!audioElement.src) {
+                loadTrack(currentIndex);
             }
-        });
-    }
-
-    function startAudio() {
-        if (!audioElem) {
-            audioElem = new Audio('https://assets.mixkit.co/music/preview/mixkit-chill-bro-494.mp3');
-            audioElem.loop = true;
-            audioElem.volume = 0.45;
+            audioElement.play().then(() => {
+                isPlaying = true;
+                userHasPaused = false;
+                sessionStorage.removeItem('cafe_music_user_paused');
+                musicPlayerElem.classList.add('playing');
+                if (musicPlayIcon) {
+                    musicPlayIcon.classList.remove('fa-play');
+                    musicPlayIcon.classList.add('fa-pause');
+                }
+            }).catch(err => {
+                console.log('Autoplay deferred until user interaction:', err);
+                setupInteractionAutoplay();
+            });
         }
-        audioElem.play().then(() => {
-            isPlayingAudio = true;
-            soundToggle.classList.add('playing');
-            soundToggle.querySelector('.sound-text').textContent = 'در حال پخش 🎵';
-        }).catch(err => {
-            console.log('Audio autoplay prevented or error', err);
-        });
-    }
 
-    function stopAudio() {
-        if (audioElem) {
-            audioElem.pause();
+        function pauseMusic() {
+            audioElement.pause();
+            isPlaying = false;
+            userHasPaused = true;
+            sessionStorage.setItem('cafe_music_user_paused', 'true');
+            musicPlayerElem.classList.remove('playing');
+            if (musicPlayIcon) {
+                musicPlayIcon.classList.remove('fa-pause');
+                musicPlayIcon.classList.add('fa-play');
+            }
         }
-        isPlayingAudio = false;
-        soundToggle.classList.remove('playing');
-        soundToggle.querySelector('.sound-text').textContent = 'موزیک کافه';
+
+        function playNextShuffle() {
+            if (playlist.length > 1) {
+                let nextIndex;
+                do {
+                    nextIndex = Math.floor(Math.random() * playlist.length);
+                } while (nextIndex === currentIndex);
+                currentIndex = nextIndex;
+            } else {
+                currentIndex = 0;
+            }
+            loadTrack(currentIndex);
+            playMusic();
+        }
+
+        // هندلر پخش خودکار هوشمند با اولین لمس یا اسکرول اگر مرورگر در ابتدا اجازه نداد
+        function setupInteractionAutoplay() {
+            if (userHasPaused) return;
+            const onFirstInteraction = () => {
+                if (!isPlaying && !userHasPaused) {
+                    playMusic();
+                }
+                ['click', 'touchstart', 'scroll', 'keydown'].forEach(evt => {
+                    window.removeEventListener(evt, onFirstInteraction, { passive: true });
+                });
+            };
+            ['click', 'touchstart', 'scroll', 'keydown'].forEach(evt => {
+                window.addEventListener(evt, onFirstInteraction, { once: true, passive: true });
+            });
+        }
+
+        // رویداد پایان هر آهنگ (پخش خودکار آهنگ بعدی به صورت تصادفی)
+        audioElement.addEventListener('ended', () => {
+            playNextShuffle();
+        });
+
+        // دکمه کنترل قطع و وصل
+        if (musicToggleBtn) {
+            musicToggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (isPlaying) {
+                    pauseMusic();
+                } else {
+                    playMusic();
+                }
+            });
+        }
+
+        // دکمه موزیک بعدی
+        if (musicNextBtn) {
+            musicNextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                playNextShuffle();
+            });
+        }
+
+        // راه‌اندازی اولیه
+        loadTrack(currentIndex);
+        if (shouldAutoplay && !userHasPaused) {
+            playMusic();
+        }
     }
 
     const wheelCanvas = document.getElementById('wheelCanvas');

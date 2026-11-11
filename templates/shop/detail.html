@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load coffee_tags %}
 
 {% block title %}{{ product.title }} | فروشگاه کافه {{ site_settings.site_name }}{% endblock %}
 
@@ -36,7 +37,7 @@
                 <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 1.2rem; flex-wrap: wrap; gap: 1rem;">
                     <div>
                         <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">قیمت محصول:</span>
-                        <span style="font-size: 1.6rem; font-weight: 800; color: var(--ember);">{{ product.final_price }} تومان</span>
+                        <span style="font-size: 1.6rem; font-weight: 800; color: var(--ember);">{{ product.final_price|toman }}</span>
                     </div>
 
                     {% if product.stock > 0 %}

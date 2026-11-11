@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load coffee_tags %}
 
 {% block title %}تکمیل اطلاعات ارسال و خرید | {{ site_settings.site_name }}{% endblock %}
 
@@ -30,7 +31,7 @@
 
             <div style="background: rgba(240, 120, 46, 0.1); border: 1px solid var(--border-glow); padding: 1.2rem; border-radius: 12px; margin-bottom: 1.8rem; display: flex; justify-content: space-between; align-items: center;">
                 <span style="color: var(--cream); font-weight: 600;">مبلغ قابل پرداخت سفارش:</span>
-                <span style="font-size: 1.5rem; font-weight: 900; color: var(--ember);">{{ cart.get_total_price }} تومان</span>
+                <span style="font-size: 1.5rem; font-weight: 900; color: var(--ember);">{{ cart.get_total_price|toman }}</span>
             </div>
 
             <div style="display: flex; gap: 1rem;">
@@ -38,7 +39,7 @@
                     <i class="fa-solid fa-arrow-right"></i> بازگشت به سبد
                 </a>
                 <button type="submit" class="btn btn-primary" style="flex: 2; font-size: 1.05rem; padding: 0.85rem;">
-                    <i class="fa-solid fa-credit-card"></i> اتصال به درگاه پرداخت
+                    <i class="fa-solid fa-credit-card"></i> ادامه جهت پرداخت کارت به کارت <i class="fa-solid fa-arrow-left"></i>
                 </button>
             </div>
         </form>

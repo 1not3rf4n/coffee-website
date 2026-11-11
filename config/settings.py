@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
 
     # Coffee Shop Apps
     'apps.core',
@@ -260,6 +261,7 @@ JAZZMIN_SETTINGS = {
         "reservations.TableReservation": "fas fa-chair",
         "reservations.ReservationSettings": "fas fa-cog",
         "core.SiteSettings": "fas fa-sliders-h",
+        "core.CafeMusic": "fas fa-music",
         "core.LuckyWheelCoupon": "fas fa-ticket-alt",
     },
     "default_icon_parents": "fas fa-chevron-circle-right",

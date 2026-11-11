@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static coffee_tags %}
 
 {% block title %}{{ site_settings.site_name }} | {{ site_settings.tagline }}{% endblock %}
 
@@ -62,8 +62,8 @@
             <p class="card-desc">{{ item.description|truncatewords:14 }}</p>
             <div class="card-footer">
                 <div>
-                    <span class="card-price">{{ item.final_price }} تومان</span>
-                    {% if item.discount_percent > 0 %}<span class="old-price">{{ item.price }}</span>{% endif %}
+                    <span class="card-price">{{ item.final_price|toman }}</span>
+                    {% if item.discount_percent > 0 %}<span class="old-price">{{ item.price|price_format }}</span>{% endif %}
                 </div>
                 <a href="{% url 'menu:index' %}" class="btn btn-outline btn-sm">سفارش</a>
             </div>
@@ -98,7 +98,7 @@
             <h3 class="card-title"><a href="{% url 'shop:detail' product.slug %}">{{ product.title }}</a></h3>
             <p class="card-desc">{{ product.flavor_notes|default:product.description|truncatewords:12 }}</p>
             <div class="card-footer">
-                <span class="card-price">{{ product.final_price }} تومان</span>
+                <span class="card-price">{{ product.final_price|toman }}</span>
                 <button class="btn btn-primary btn-sm add-to-cart-btn" data-product-id="{{ product.id }}">
                     <i class="fa-solid fa-cart-plus"></i> خرید
                 </button>
@@ -147,6 +147,107 @@
     </div>
 </section>
 {% endif %}
+
+<!-- ──────────────────────────────────────────────────────────────────────────
+     بخش اختصاصی موقعیت مکانی، نقشه، مسیریابی نشان و اطلاعات تماس
+     ────────────────────────────────────────────────────────────────────────── -->
+<section class="location-section">
+    <div class="section-header" style="margin-bottom: 2.5rem;">
+        <div class="section-tag">موقعیت مکانی و راه‌های ارتباطی</div>
+        <h2 class="section-title">میزبان لحظه‌های آرام شما در {{ site_settings.site_name }}</h2>
+        <p style="color: var(--text-muted); margin-top: 0.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+            برای تجربه یک فنجان قهوه دمی تخصصی، گفت‌وگوهای دلنشین و حس اصیل کافه‌نشینی، مشتاقانه منتظر دیدارتان هستیم.
+        </p>
+    </div>
+
+    <div class="location-grid">
+        <!-- کارت نقشه تصویری و دکمه‌های مسیریابی -->
+        <div class="map-visual-card">
+            <div style="flex: 1; min-height: 280px; position: relative; background: #17181c; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                {% if site_settings.map_iframe %}
+                    {{ site_settings.map_iframe|safe }}
+                {% elif site_settings.map_image %}
+                    <img src="{{ site_settings.map_image.url }}" alt="نقشه کافه" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                    <!-- گرافیک تاریک و لوکس نقشه فرضی -->
+                    <div style="position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(240, 120, 46, 0.15) 0%, #121417 80%);"></div>
+                    <div style="position: relative; z-index: 2; text-align: center; padding: 2rem;">
+                        <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(240, 120, 46, 0.2); border: 2px solid var(--ember); margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(240, 120, 46, 0.5); animation: pulse 2s infinite;">
+                            <i class="fa-solid fa-location-dot" style="font-size: 2rem; color: var(--ember-hi);"></i>
+                        </div>
+                        <h4 style="color: #FFF; font-size: 1.15rem; margin-bottom: 4px;">{{ site_settings.site_name }}</h4>
+                        <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 320px; margin: 0 auto;">{{ site_settings.address }}</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="map-overlay-card">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-diamond-turn-right" style="color: var(--ember); font-size: 1.2rem;"></i>
+                    <span style="font-size: 0.9rem; font-weight: 700; color: #FFF;">مسیریابی هوشمند سریع:</span>
+                </div>
+                <div class="nav-apps-buttons">
+                    <a href="{{ site_settings.neshan_url|default:'https://nshn.ir' }}" target="_blank" rel="noopener noreferrer" class="btn-neshan" title="مسیریابی در اپ نشان">
+                        <i class="fa-solid fa-location-arrow"></i> مسیریابی با نشان
+                    </a>
+                    <a href="{{ site_settings.google_maps_url|default:'https://maps.google.com' }}" target="_blank" rel="noopener noreferrer" class="btn-gmaps" title="مسیریابی در گوگل مپ">
+                        <i class="fa-brands fa-google"></i> گوگل مپ
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- کارت‌های تماس، آدرس و ساعت کاری -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <!-- کارت آدرس -->
+            <div class="contact-quick-link" style="cursor: default;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(240, 120, 46, 0.12); display: flex; align-items: center; justify-content: center; color: var(--ember); flex-shrink: 0;">
+                    <i class="fa-solid fa-location-dot" style="font-size: 1.2rem;"></i>
+                </div>
+                <div style="flex: 1;">
+                    <span style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 2px;">نشانی دقیق کافه:</span>
+                    <span style="font-size: 0.92rem; color: #FFF; font-weight: 700; line-height: 1.6;">{{ site_settings.address }}</span>
+                </div>
+            </div>
+
+            <!-- کارت تماس تلفنی مستقیم (کلیک جهت تماس) -->
+            <a href="tel:{{ site_settings.clean_phone }}" class="contact-quick-link" title="تماس تلفنی با کافه">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(46, 125, 50, 0.15); display: flex; align-items: center; justify-content: center; color: #4ade80; flex-shrink: 0;">
+                    <i class="fa-solid fa-phone-volume" style="font-size: 1.2rem;"></i>
+                </div>
+                <div style="flex: 1;">
+                    <span style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 2px;">تلفن هماهنگی و تماس سریع (کلیک کنید):</span>
+                    <span style="font-size: 1.1rem; color: #4ade80; font-weight: 800; direction: ltr; display: inline-block;">{{ site_settings.phone }}</span>
+                </div>
+                <i class="fa-solid fa-arrow-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
+            </a>
+
+            <!-- کارت اینستاگرام مستقیم -->
+            <a href="https://instagram.com/{{ site_settings.clean_instagram }}" target="_blank" rel="noopener noreferrer" class="contact-quick-link" title="مشاهده پیج اینستاگرام کافه">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, rgba(225,48,108,0.2), rgba(131,58,180,0.2)); display: flex; align-items: center; justify-content: center; color: #ff548e; flex-shrink: 0;">
+                    <i class="fa-brands fa-instagram" style="font-size: 1.35rem;"></i>
+                </div>
+                <div style="flex: 1;">
+                    <span style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 2px;">صفحه رسمی اینستاگرام کافه:</span>
+                    <span style="font-size: 1rem; color: #ff548e; font-weight: 800; direction: ltr; display: inline-block;">{{ site_settings.instagram }}</span>
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.85rem;"></i>
+            </a>
+
+            <!-- کارت ساعت کاری و وضعیت -->
+            <div class="contact-quick-link" style="cursor: default;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); display: flex; align-items: center; justify-content: center; color: var(--cream); flex-shrink: 0;">
+                    <i class="fa-solid fa-clock" style="font-size: 1.2rem;"></i>
+                </div>
+                <div style="flex: 1;">
+                    <span style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 2px;">ساعت کاری کافه:</span>
+                    <span style="font-size: 0.95rem; color: #FFF; font-weight: 700;">همه‌روزه از ساعت {{ site_settings.open_time }} الی {{ site_settings.close_time }}</span>
+                </div>
+                <div class="live-dot" style="margin-right: auto;" title="وضعیت کافه"></div>
+            </div>
+        </div>
+    </div>
+</section>
 
 {% endblock %}
 

@@ -1,98 +1,152 @@
 {% extends 'base.html' %}
 
-{% block title %}تنظیمات دیزاین و امکانات سایت | پنل مدیریت{% endblock %}
+{% block title %}تنظیمات پیشرفته سایت و درگاه | پنل مدیریت کافه{% endblock %}
 
 {% block content %}
-<section class="section" style="padding-top: 8rem;">
+<section class="section" style="padding-top: 8rem; padding-bottom: 5rem;">
     <div class="section-header">
-        <div class="section-tag">پیکربندی هوشمند</div>
-        <h2 class="section-title">تنظیمات رنگ، طرح‌ها و روشن/خاموش کردن گزینه‌های سایت</h2>
+        <div class="section-tag">پیکربندی هوشمند و یکپارچه</div>
+        <h2 class="section-title">تنظیمات کارت به کارت، لوکیشن، موزیک و دیزاین کافه</h2>
     </div>
 
-    <div class="glass-card" style="max-width: 800px; margin: 0 auto; padding: 2.5rem;">
+    <div class="glass-card" style="max-width: 860px; margin: 0 auto; padding: 2.5rem;">
         <form method="POST" action="{% url 'dashboard:settings' %}">
             {% csrf_token %}
 
-            <h3 style="color: var(--primary-glow); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
-                <i class="fa-solid fa-palette"></i> تنظیمات دیزاین و پلت رنگ‌ها
+            <!-- بخش ۱: درگاه پرداخت کارت به کارت -->
+            <h3 style="color: var(--ember); border-bottom: 1px solid var(--line); padding-bottom: 0.6rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-credit-card"></i> مشخصات حساب و درگاه کارت به کارت
             </h3>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-                <div>
-                    <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">رنگ اصلی سایت (نارنجی):</label>
-                    <input type="color" name="primary_color" value="{{ site_settings.primary_color }}" style="width: 100%; height: 45px; border: none; border-radius: 8px; cursor: pointer;">
+            <div style="background: rgba(240, 120, 46, 0.06); border: 1px solid var(--border-glow); padding: 1.5rem; border-radius: 14px; margin-bottom: 2.5rem;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 1.2rem;">
+                    <input type="checkbox" name="is_card_to_card_active" {% if site_settings.is_card_to_card_active %}checked{% endif %}>
+                    <strong style="color: #FFF; font-size: 1rem;">درگاه پرداخت کارت به کارت در سایت فعال باشد</strong>
+                </label>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem;">
+                    <div>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;">نام بانک:</label>
+                        <input type="text" name="bank_name" value="{{ site_settings.bank_name }}" placeholder="مثال: بانک ملت" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem 1rem; color: #FFF;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;">نام و نام خانوادگی صاحب حساب:</label>
+                        <input type="text" name="card_holder" value="{{ site_settings.card_holder }}" placeholder="مثال: عرفان رستمی" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem 1rem; color: #FFF;">
+                    </div>
                 </div>
 
-                <div>
-                    <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">رنگ پس‌زمینه و کارت‌ها (طوسی/زغالی):</label>
-                    <input type="color" name="secondary_color" value="{{ site_settings.secondary_color }}" style="width: 100%; height: 45px; border: none; border-radius: 8px; cursor: pointer;">
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.2rem;">
+                    <div>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;">شماره کارت ۱۶ رقمی:</label>
+                        <input type="text" name="card_number" value="{{ site_settings.card_number }}" placeholder="6037-9975-1234-5678" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem 1rem; color: #FFF; direction: ltr; font-family: monospace; font-size: 1.05rem;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;">شماره شبا (اختیاری):</label>
+                        <input type="text" name="shaba_number" value="{{ site_settings.shaba_number }}" placeholder="IR..." style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem 1rem; color: #FFF; direction: ltr; font-family: monospace;">
+                    </div>
                 </div>
             </div>
 
-            <h3 style="color: var(--primary-glow); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
-                <i class="fa-solid fa-toggle-on"></i> روشن / خاموش کردن بخش‌ها و گزینه‌های سایت
+            <!-- بخش ۲: آدرس، لوکیشن و نشان -->
+            <h3 style="color: var(--ember); border-bottom: 1px solid var(--line); padding-bottom: 0.6rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-location-dot"></i> آدرس، مسیریابی نشان و نقشه کافه
+            </h3>
+
+            <div style="margin-bottom: 2.5rem; display: flex; flex-direction: column; gap: 1.2rem;">
+                <div>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;">آدرس دقیق کافه (نمایش در صفحه اصلی و فوتر):</label>
+                    <textarea name="address" rows="2" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem 1rem; color: #FFF; line-height: 1.6;">{{ site_settings.address }}</textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+                    <div>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;"><i class="fa-solid fa-location-arrow" style="color: #0077FE;"></i> لینک مستقیم مسیریابی در نشان (Neshan URL):</label>
+                        <input type="url" name="neshan_url" value="{{ site_settings.neshan_url }}" placeholder="https://nshn.ir/..." style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem 1rem; color: #FFF; direction: ltr;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;"><i class="fa-brands fa-google" style="color: #EA4335;"></i> لینک مسیریابی گوگل مپ (Google Maps):</label>
+                        <input type="url" name="google_maps_url" value="{{ site_settings.google_maps_url }}" placeholder="https://maps.google.com/..." style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem 1rem; color: #FFF; direction: ltr;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+                    <div>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;"><i class="fa-solid fa-phone" style="color: #4ade80;"></i> تلفن تماس مستقیم کافه:</label>
+                        <input type="text" name="phone" value="{{ site_settings.phone }}" placeholder="021-88889900" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem 1rem; color: #FFF; direction: ltr;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;"><i class="fa-brands fa-instagram" style="color: #ff548e;"></i> پیج رسمی اینستاگرام کافه:</label>
+                        <input type="text" name="instagram" value="{{ site_settings.instagram }}" placeholder="@erfancafe" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem 1rem; color: #FFF; direction: ltr;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- بخش ۳: موزیک پس‌زمینه کافه -->
+            <h3 style="color: var(--ember); border-bottom: 1px solid var(--line); padding-bottom: 0.6rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-music"></i> تنظیمات پخش موزیک کافه
+            </h3>
+
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--line); padding: 1.5rem; border-radius: 14px; margin-bottom: 2.5rem;">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="is_soundscape_active" {% if site_settings.is_soundscape_active %}checked{% endif %}>
+                        <strong style="color: #FFF;">پلیر موزیک و سانداسکیپ کافه در سایت فعال باشد</strong>
+                    </label>
+
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="soundscape_autoplay" {% if site_settings.soundscape_autoplay %}checked{% endif %}>
+                        <span style="color: #FFF;">پخش خودکار (Autoplay) با باز شدن صفحه سایت توسط کاربر</span>
+                    </label>
+
+                    <div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+                        💡 برای آپلود فایل‌های آهنگ جدید یا مدیریت پلی‌لیست و ترتیب پخش، می‌توانید از بخش 
+                        <a href="/admin/core/cafemusic/" target="_blank" style="color: var(--ember); font-weight: 700; text-decoration: underline;">مدیریت پلی‌لیست موزیک‌ها در ادمین</a> 
+                        استفاده فرمایید.
+                    </div>
+                </div>
+            </div>
+
+            <!-- بخش ۴: رنگ‌بندی و فعال/غیرفعال کردن ماژول‌ها -->
+            <h3 style="color: var(--ember); border-bottom: 1px solid var(--line); padding-bottom: 0.6rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-sliders"></i> ماژول‌های فعال و بیعانه رزرو میز
             </h3>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 2rem;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
-                    <input type="checkbox" name="is_hero_animation_active" {% if site_settings.is_hero_animation_active %}checked{% endif %}>
-                    <span>انیمیشن هیرو برشته‌کاری قهوه</span>
-                </label>
-
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--surface-2); padding: 12px 18px; border-radius: 12px;">
                     <input type="checkbox" name="is_menu_active" {% if site_settings.is_menu_active %}checked{% endif %}>
-                    <span>بخش منوی کافه</span>
+                    <span>منوی تخصصی کافه</span>
                 </label>
 
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--surface-2); padding: 12px 18px; border-radius: 12px;">
                     <input type="checkbox" name="is_shop_active" {% if site_settings.is_shop_active %}checked{% endif %}>
-                    <span>بخش فروشگاه آنلاین</span>
+                    <span>فروشگاه دانه‌های برشته</span>
                 </label>
 
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--surface-2); padding: 12px 18px; border-radius: 12px;">
                     <input type="checkbox" name="is_reservation_active" {% if site_settings.is_reservation_active %}checked{% endif %}>
-                    <span>بخش رزرو آنلاین میز</span>
+                    <span>رزرو آنلاین میز</span>
                 </label>
 
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--surface-2); padding: 12px 18px; border-radius: 12px;">
                     <input type="checkbox" name="is_order_tracking_active" {% if site_settings.is_order_tracking_active %}checked{% endif %}>
-                    <span>بخش پیگیری سفارش</span>
-                </label>
-
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
-                    <input type="checkbox" name="is_quiz_active" {% if site_settings.is_quiz_active %}checked{% endif %}>
-                    <span>تست هوشمند قهوه</span>
-                </label>
-
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
-                    <input type="checkbox" name="is_lucky_wheel_active" {% if site_settings.is_lucky_wheel_active %}checked{% endif %}>
-                    <span>گردونه شانس روزانه</span>
-                </label>
-
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg-dark); padding: 12px 18px; border-radius: 12px;">
-                    <input type="checkbox" name="is_soundscape_active" {% if site_settings.is_soundscape_active %}checked{% endif %}>
-                    <span>پلیر صدای آکوستیک کافه</span>
+                    <span>پیگیری آنلاین وضعیت سفارش</span>
                 </label>
             </div>
 
-            <h3 style="color: var(--primary-glow); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
-                <i class="fa-solid fa-chair"></i> تنظیمات بیعانه رزرو میز (دست ادمین)
-            </h3>
-
-            <div style="background: rgba(255,152,0,0.08); border: 1px solid var(--border-glow); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 1rem;">
+            <div style="background: rgba(255,152,0,0.06); border: 1px solid var(--border-glow); padding: 1.2rem 1.5rem; border-radius: 12px; margin-bottom: 2.5rem;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 0.8rem;">
                     <input type="checkbox" name="require_deposit" {% if res_settings.require_deposit %}checked{% endif %}>
-                    <strong style="color: #FFF;">رزرو میز نیاز به پرداخت بیعانه داشته باشد</strong>
+                    <strong style="color: #FFF;">رزرو میز نیازمند پرداخت بیعانه باشد</strong>
                 </label>
 
                 <div>
-                    <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">مبلغ بیعانه هر رزرو (تومان):</label>
-                    <input type="number" name="deposit_amount" value="{{ res_settings.deposit_amount }}" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.8rem 1.2rem; color: #FFF;">
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;">مبلغ بیعانه هر رزرو (تومان):</label>
+                    <input type="number" name="deposit_amount" value="{{ res_settings.deposit_amount }}" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem 1rem; color: #FFF;">
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 0.9rem;">
-                <i class="fa-solid fa-floppy-disk"></i> ذخیره تغییرات دیزاین و پیکربندی
+            <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.15rem; padding: 1rem; justify-content: center; box-shadow: 0 4px 20px rgba(240, 120, 46, 0.4);">
+                <i class="fa-solid fa-floppy-disk"></i> ذخیره تمام تغییرات و پیکربندی جدید
             </button>
         </form>
     </div>

@@ -54,6 +54,22 @@ def dashboard_settings_view(request):
         site_settings.close_time = request.POST.get('close_time', site_settings.close_time)
         site_settings.phone = request.POST.get('phone', site_settings.phone)
         site_settings.address = request.POST.get('address', site_settings.address)
+        site_settings.instagram = request.POST.get('instagram', site_settings.instagram)
+        
+        # کارت به کارت
+        site_settings.is_card_to_card_active = request.POST.get('is_card_to_card_active') == 'on'
+        site_settings.bank_name = request.POST.get('bank_name', site_settings.bank_name)
+        site_settings.card_number = request.POST.get('card_number', site_settings.card_number)
+        site_settings.card_holder = request.POST.get('card_holder', site_settings.card_holder)
+        site_settings.shaba_number = request.POST.get('shaba_number', site_settings.shaba_number)
+
+        # لوکیشن و نشان
+        site_settings.neshan_url = request.POST.get('neshan_url', site_settings.neshan_url)
+        site_settings.google_maps_url = request.POST.get('google_maps_url', site_settings.google_maps_url)
+
+        # پخش خودکار موزیک
+        site_settings.soundscape_autoplay = request.POST.get('soundscape_autoplay') == 'on'
+
         site_settings.save()
 
         # Reservation settings

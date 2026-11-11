@@ -1,39 +1,207 @@
 {% extends 'base.html' %}
+{% load coffee_tags %}
 
-{% block title %}درگاه پرداخت آنلاین شاپرک | {{ site_settings.site_name }}{% endblock %}
+{% block title %}پرداخت سفارش با کارت به کارت | {{ site_settings.site_name }}{% endblock %}
 
 {% block content %}
-<section class="section" style="padding-top: 7rem;">
-    <div class="glass-card" style="max-width: 520px; margin: 0 auto; padding: 2.5rem; text-align: center; border-color: var(--ember);">
-        <div style="margin-bottom: 1.2rem;">
-            <i class="fa-solid fa-shield-halved" style="font-size: 3.5rem; color: var(--ember);"></i>
-        </div>
-        <h2 style="color: var(--cream); font-size: 1.4rem; margin-bottom: 0.4rem;">درگاه پرداخت اینترنتی شاپرک (ZarinPal)</h2>
-        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.8rem;">محیط امن شبیه‌سازی پرداخت سفارش آنلاین کافه</p>
-
-        <div style="background: var(--surface-2); border: 1px solid var(--line); padding: 1.2rem 1.5rem; border-radius: 12px; margin-bottom: 2rem; text-align: right; font-size: 0.92rem; display: flex; flex-direction: column; gap: 8px;">
-            <div style="display: flex; justify-content: space-between;">
-                <span style="color: var(--text-muted);">شماره فاکتور سفارش:</span>
-                <span style="color: #FFF; font-weight: 700; direction: ltr;">{{ order.order_number }}</span>
+<section class="section" style="padding-top: 7rem; padding-bottom: 5rem;">
+    <div style="max-width: 650px; margin: 0 auto;">
+        
+        <div class="section-header" style="margin-bottom: 2rem;">
+            <div class="section-tag" style="background: rgba(240, 120, 46, 0.15); color: var(--ember); border: 1px solid var(--ember);">
+                <i class="fa-solid fa-credit-card"></i> پرداخت کارت به کارت
             </div>
-            <div style="display: flex; justify-content: space-between;">
+            <h2 class="section-title">انتقال وجه و ثبت فیش واریزی</h2>
+            <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 0.92rem;">
+                لطفاً مبلغ فاکتور را به شماره کارت زیر واریز نموده و سپس مشخصات یا تصویر فیش را ثبت فرمایید.
+            </p>
+        </div>
+
+        <!-- کارت بانکی فوق‌العاده شیک و سه بعدی -->
+        <div class="bank-card-wrapper">
+            <div class="luxury-bank-card">
+                <div class="card-top-row">
+                    <div class="card-chip"></div>
+                    <div class="card-bank-badge">
+                        <i class="fa-solid fa-building-columns"></i>
+                        <span>{{ site_settings.bank_name|default:"بانک ملت" }}</span>
+                    </div>
+                </div>
+
+                <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; text-align: center;">
+                    شماره کارت جهت واریز وجه:
+                </div>
+                <div class="card-number-display" id="cardNumberText">
+                    {{ site_settings.formatted_card_number|default:"۶۰۳۷ - ۹۹۷۵ - ۱۲۳۴ - ۵۶۷۸" }}
+                </div>
+
+                <div class="card-bottom-row">
+                    <div class="card-holder-info">
+                        <div class="card-holder-label">صاحب حساب:</div>
+                        <div class="card-holder-name">{{ site_settings.card_holder|default:site_settings.site_name }}</div>
+                    </div>
+
+                    <button type="button" class="copy-card-btn" id="copyCardBtn" data-card="{{ site_settings.clean_card_number }}">
+                        <i class="fa-regular fa-copy" id="copyCardIcon"></i>
+                        <span id="copyCardBtnText">کپی شماره کارت</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- جزئیات فاکتور و مبلغ قابل پرداخت -->
+        <div class="glass-card" style="padding: 1.5rem 1.8rem; margin-bottom: 2rem; border-color: rgba(240, 120, 46, 0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; font-size: 0.95rem;">
+                <span style="color: var(--text-muted);">شماره فاکتور سفارش:</span>
+                <span style="color: #FFF; font-weight: 700; direction: ltr; font-family: monospace;">{{ order.order_number }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; font-size: 0.95rem;">
                 <span style="color: var(--text-muted);">تحویل‌گیرنده:</span>
                 <span style="color: #FFF; font-weight: 700;">{{ order.full_name }}</span>
             </div>
-            <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 8px; margin-top: 4px;">
-                <span style="color: var(--text-muted);">مبلغ قابل پرداخت:</span>
-                <span style="color: var(--ember); font-weight: 800; font-size: 1.2rem;">{{ order.total_price }} تومان</span>
+            
+            {% if site_settings.shaba_number %}
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; font-size: 0.9rem; border-top: 1px solid var(--line); padding-top: 0.8rem;">
+                <span style="color: var(--text-muted);">شماره شبا (IBAN):</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: #FFF; font-family: monospace; direction: ltr;">{{ site_settings.shaba_number }}</span>
+                    <button type="button" class="btn btn-outline btn-sm" id="copyShabaBtn" data-shaba="{{ site_settings.shaba_number }}" style="padding: 2px 8px; font-size: 0.75rem;">کپی</button>
+                </div>
+            </div>
+            {% endif %}
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 1rem; margin-top: 0.4rem;">
+                <div>
+                    <span style="display: block; font-size: 0.82rem; color: var(--text-muted);">مبلغ دقیق واریزی:</span>
+                    <span style="font-size: 1.6rem; font-weight: 900; color: var(--ember);" id="orderAmountText">{{ order.total_price|toman }}</span>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm" id="copyAmountBtn" data-amount="{{ order.total_price }}" style="padding: 6px 14px;">
+                    <i class="fa-regular fa-copy"></i> کپی مبلغ
+                </button>
             </div>
         </div>
 
-        <div style="display: flex; gap: 1rem;">
-            <a href="{% url 'orders:payment_verify' order.id %}?action=success" class="btn btn-primary" style="flex: 1.2; background: #2E7D32;">
-                <i class="fa-solid fa-check"></i> پرداخت موفق
-            </a>
-            <a href="{% url 'orders:payment_verify' order.id %}?action=cancel" class="btn btn-outline" style="flex: 1; border-color: rgba(239, 68, 68, 0.4); color: #ef4444;">
-                <i class="fa-solid fa-xmark"></i> انصراف
-            </a>
+        <!-- فرم بارگذاری فیش واریز کارت به کارت -->
+        <div class="glass-card" style="padding: 2rem;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; border-bottom: 1px solid var(--line); padding-bottom: 1rem;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(240, 120, 46, 0.15); display: flex; align-items: center; justify-content: center; color: var(--ember);">
+                    <i class="fa-solid fa-receipt"></i>
+                </div>
+                <div>
+                    <h3 style="color: #FFF; font-size: 1.15rem; margin: 0;">فرم ثبت و ارسال فیش واریزی</h3>
+                    <span style="color: var(--text-muted); font-size: 0.82rem;">پس از واریز، مشخصات یا اسکرین‌شات فیش را ارسال کنید</span>
+                </div>
+            </div>
+
+            <form method="POST" action="{% url 'orders:payment_mock' order.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- آپلود تصویر فیش -->
+                <div style="margin-bottom: 1.4rem;">
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.5rem; color: var(--cream); font-size: 0.92rem;">
+                        <i class="fa-regular fa-image" style="color: var(--ember); margin-left: 4px;"></i> تصویر اسکرین‌شات یا فیش واریزی (اختیاری):
+                    </label>
+                    <input type="file" name="receipt_image" accept="image/*" id="receiptFileInput" style="width: 100%; background: var(--surface-2); border: 1px dashed var(--line); border-radius: 12px; padding: 0.8rem; color: #FFF; font-size: 0.9rem;">
+                    <span style="display: block; font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">فرمت‌های مجاز: JPG, PNG (حداکثر ۵ مگابایت)</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.8rem;">
+                    <!-- ۴ رقم آخر کارت -->
+                    <div>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.5rem; color: var(--cream); font-size: 0.88rem;">
+                            ۴ رقم آخر کارت واریزکننده:
+                        </label>
+                        <input type="text" name="card_last_digits" maxlength="6" placeholder="مثال: ۱۲۳۴" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 0.75rem 1rem; color: #FFF; font-size: 0.95rem; text-align: center; direction: ltr; font-family: monospace;">
+                    </div>
+
+                    <!-- شماره پیگیری یا ارجاع -->
+                    <div>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.5rem; color: var(--cream); font-size: 0.88rem;">
+                            شماره پیگیری / شماره ارجاع فیش:
+                        </label>
+                        <input type="text" name="tracking_code" placeholder="مثال: ۹۸۷۶۵۴" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 0.75rem 1rem; color: #FFF; font-size: 0.95rem; direction: ltr; font-family: monospace;">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 2; font-size: 1.05rem; padding: 0.9rem; justify-content: center;">
+                        <i class="fa-solid fa-paper-plane"></i> ثبت و ارسال فیش واریز
+                    </button>
+                    <a href="{% url 'cart:detail' %}" class="btn btn-outline" style="flex: 1; justify-content: center;">
+                        انصراف
+                    </a>
+                </div>
+            </form>
+
+            {% if user.is_staff or user.is_superuser %}
+            <!-- دکمه تست فوری ویژه مدیران سایت -->
+            <div style="margin-top: 1.8rem; border-top: 1px dashed rgba(255, 255, 255, 0.15); padding-top: 1rem; text-align: center;">
+                <span style="display: block; font-size: 0.78rem; color: var(--ember-hi); margin-bottom: 6px;">
+                    <i class="fa-solid fa-shield-halved"></i> پنل تست سریع ویژه ادمین:
+                </span>
+                <a href="{% url 'orders:payment_verify' order.id %}?action=success" class="btn btn-outline btn-sm" style="border-color: #4ade80; color: #4ade80;">
+                    ✓ شبیه‌سازی تأیید آنی پرداخت (حالت تست)
+                </a>
+            </div>
+            {% endif %}
         </div>
+
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // عملکرد دکمه کپی شماره کارت
+    const copyCardBtn = document.getElementById('copyCardBtn');
+    const copyCardBtnText = document.getElementById('copyCardBtnText');
+    const copyCardIcon = document.getElementById('copyCardIcon');
+
+    if (copyCardBtn) {
+        copyCardBtn.addEventListener('click', () => {
+            const cardNum = copyCardBtn.getAttribute('data-card');
+            navigator.clipboard.writeText(cardNum).then(() => {
+                copyCardBtnText.textContent = 'کپی شد! ✓';
+                copyCardIcon.className = 'fa-solid fa-check';
+                copyCardBtn.style.background = '#2E7D32';
+                copyCardBtn.style.borderColor = '#4ade80';
+
+                setTimeout(() => {
+                    copyCardBtnText.textContent = 'کپی شماره کارت';
+                    copyCardIcon.className = 'fa-regular fa-copy';
+                    copyCardBtn.style.background = '';
+                    copyCardBtn.style.borderColor = '';
+                }, 2500);
+            }).catch(err => {
+                prompt('شماره کارت جهت کپی دستی:', cardNum);
+            });
+        });
+    }
+
+    // عملکرد کپی مبلغ
+    const copyAmountBtn = document.getElementById('copyAmountBtn');
+    if (copyAmountBtn) {
+        copyAmountBtn.addEventListener('click', () => {
+            const amount = copyAmountBtn.getAttribute('data-amount');
+            navigator.clipboard.writeText(amount).then(() => {
+                const orig = copyAmountBtn.innerHTML;
+                copyAmountBtn.innerHTML = '<i class="fa-solid fa-check"></i> کپی شد';
+                setTimeout(() => { copyAmountBtn.innerHTML = orig; }, 2000);
+            });
+        });
+    }
+
+    // عملکرد کپی شبا
+    const copyShabaBtn = document.getElementById('copyShabaBtn');
+    if (copyShabaBtn) {
+        copyShabaBtn.addEventListener('click', () => {
+            const shaba = copyShabaBtn.getAttribute('data-shaba');
+            navigator.clipboard.writeText(shaba).then(() => {
+                const orig = copyShabaBtn.innerHTML;
+                copyShabaBtn.innerHTML = 'کپی شد ✓';
+                setTimeout(() => { copyShabaBtn.innerHTML = orig; }, 2000);
+            });
+        });
+    }
+</script>
 {% endblock %}

@@ -24,7 +24,8 @@ def checkout_view(request):
             phone=phone,
             address=address,
             total_price=cart.get_total_price(),
-            status='pending'
+            status='pending',
+            payment_method='card_to_card'
         )
 
         for item in cart:
@@ -49,6 +50,31 @@ def checkout_view(request):
 
 def payment_mock_view(request, order_id):
     order = get_object_or_404(Order, id=order_id)
+
+    if request.method == 'POST':
+        if 'receipt_image' in request.FILES:
+            order.receipt_image = request.FILES['receipt_image']
+        
+        order.card_last_digits = request.POST.get('card_last_digits', '').strip()
+        user_tracking = request.POST.get('tracking_code', '').strip()
+        if user_tracking:
+            order.tracking_code = user_tracking
+        else:
+            order.tracking_code = f"REC-{random.randint(100000, 999999)}"
+
+        order.status = 'awaiting_approval'
+        order.payment_method = 'card_to_card'
+        order.save()
+
+        # کاهش موجودی انبار پس از ارسال فیش
+        for item in order.items.all():
+            if item.product:
+                item.product.stock = max(0, item.product.stock - item.quantity)
+                item.product.save()
+
+        messages.success(request, "فیش واریزی با موفقیت دریافت شد و در دست بررسی تیم کافه قرار گرفت.")
+        return redirect('orders:order_success', order_id=order.id)
+
     return render(request, 'orders/payment_mock.html', {'order': order})
 
 def payment_verify_view(request, order_id):
@@ -57,13 +83,14 @@ def payment_verify_view(request, order_id):
 
     if action == 'success':
         order.status = 'paid'
-        order.tracking_code = f"TRK-{random.randint(100000, 999999)}"
+        if not order.tracking_code:
+            order.tracking_code = f"TRK-{random.randint(100000, 999999)}"
         order.save()
         for item in order.items.all():
             if item.product:
                 item.product.stock = max(0, item.product.stock - item.quantity)
                 item.product.save()
-        messages.success(request, "پرداخت با موفقیت انجام شد!")
+        messages.success(request, "پرداخت با موفقیت تأیید شد!")
         return redirect('orders:order_success', order_id=order.id)
     else:
         order.status = 'cancelled'
@@ -76,12 +103,13 @@ def order_success_view(request, order_id):
     return render(request, 'orders/order_success.html', {'order': order})
 
 
-# Ordered pipeline the progress bar walks through (cancelled is handled apart).
+# مراحل لایو پیگیری وضعیت سفارش
 TRACK_STEPS = [
-    ('pending',    'ثبت سفارش',      'fa-file-invoice'),
-    ('paid',       'پرداخت شد',       'fa-credit-card'),
-    ('processing', 'برشته‌کاری',       'fa-fire'),
-    ('shipped',    'ارسال شد',        'fa-truck-fast'),
+    ('pending',           'ثبت سفارش',                'fa-file-invoice'),
+    ('awaiting_approval', 'بررسی فیش واریز',          'fa-clock'),
+    ('paid',              'تأیید پرداخت',              'fa-credit-card'),
+    ('processing',        'آماده‌سازی و برشته‌کاری',  'fa-fire'),
+    ('shipped',           'تحویل پیک / ارسال',         'fa-truck-fast'),
 ]
 
 
@@ -99,29 +127,18 @@ def order_track_view(request):
         order_number = (request.POST.get('order_number') or '').strip()
         phone = (request.POST.get('phone') or '').strip()
 
-        order = (Order.objects
-                 .filter(order_number__iexact=order_number, phone=phone)
-                 .prefetch_related('items')
-                 .first())
+        if order_number and phone:
+            order = Order.objects.filter(
+                order_number__iexact=order_number,
+                phone__endswith=phone[-10:],
+            ).prefetch_related('items').first()
 
-        if order is None:
-            not_found = True
-        else:
-            # Build the stepped progress state for the template.
-            if order.status == 'cancelled':
-                current = -1
+            if not order:
+                not_found = True
             else:
-                keys = [s[0] for s in TRACK_STEPS]
-                current = keys.index(order.status) if order.status in keys else 0
-            steps = [
-                {
-                    'label': label,
-                    'icon': icon,
-                    'done': (idx < current) or (idx == current and order.status != 'cancelled'),
-                    'active': idx == current,
-                }
-                for idx, (key, label, icon) in enumerate(TRACK_STEPS)
-            ]
+                steps = _build_track_steps(order.status)
+        else:
+            not_found = True
 
     return render(request, 'orders/track.html', {
         'order': order,
@@ -131,3 +148,24 @@ def order_track_view(request):
         'order_number': order_number,
         'phone': phone,
     })
+
+
+def _build_track_steps(current_status):
+    order_pipeline = ['pending', 'awaiting_approval', 'paid', 'processing', 'shipped']
+    if current_status not in order_pipeline:
+        return [
+            {'code': s[0], 'label': s[1], 'icon': s[2], 'state': 'done' if s[0] == 'pending' else 'cancelled'}
+            for s in TRACK_STEPS
+        ]
+
+    current_idx = order_pipeline.index(current_status)
+    out = []
+    for idx, (code, label, icon) in enumerate(TRACK_STEPS):
+        if idx < current_idx:
+            state = 'done'
+        elif idx == current_idx:
+            state = 'current'
+        else:
+            state = 'upcoming'
+        out.append({'code': code, 'label': label, 'icon': icon, 'state': state})
+    return out

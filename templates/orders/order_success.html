@@ -1,27 +1,31 @@
 {% extends 'base.html' %}
+{% load coffee_tags %}
 
 {% block title %}سفارش با موفقیت ثبت شد | {{ site_settings.site_name }}{% endblock %}
 
 {% block content %}
 <section class="section" style="padding-top: 8rem;">
     <div class="glass-card" style="max-width: 600px; margin: 0 auto; padding: 2.5rem; text-align: center;">
-        <i class="fa-solid fa-square-check" style="font-size: 4rem; color: #81C784; margin-bottom: 1rem;"></i>
-        <h2 style="color: #FFF; margin-bottom: 0.5rem;">پرداخت با موفقیت انجام شد!</h2>
-        <p style="color: var(--text-muted); margin-bottom: 2rem;">سفارش شما در حال پردازش و آماده‌سازی برای برشته‌کاری و ارسال است.</p>
+        <i class="fa-solid fa-circle-check" style="font-size: 4rem; color: #4ade80; margin-bottom: 1rem;"></i>
+        <h2 style="color: #FFF; margin-bottom: 0.5rem;">سفارش شما با موفقیت ثبت گردید!</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">اطلاعات پرداخت و سفارش در دست بررسی و آماده‌سازی جهت برشته‌کاری و ارسال است.</p>
 
-        <div style="background: var(--bg-dark); border: 1px solid var(--border-glow); padding: 1.5rem; border-radius: 12px; text-align: right; margin-bottom: 2rem;">
-            <p><strong>شماره سفارش:</strong> {{ order.order_number }}</p>
-            <p><strong>کد پیگیری مرسوله / پرداخت:</strong> <mark style="background:#FF9800; color:#000; padding:2px 8px; border-radius:4px; font-weight:800;">{{ order.tracking_code }}</mark></p>
+        <div style="background: var(--surface-2); border: 1px solid var(--line); padding: 1.5rem; border-radius: 12px; text-align: right; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 8px;">
+            <p><strong>شماره فاکتور سفارش:</strong> <span style="font-weight: 700; color: #FFF; direction: ltr;">{{ order.order_number }}</span></p>
+            <p><strong>کد رهگیری:</strong> <mark style="background:var(--ember); color:#FFF; padding:2px 8px; border-radius:4px; font-weight:800;">{{ order.tracking_code }}</mark></p>
             <p><strong>نام خریدار:</strong> {{ order.full_name }}</p>
             <p><strong>شماره تماس:</strong> {{ order.phone }}</p>
             <p><strong>آدرس تحویل:</strong> {{ order.address }}</p>
-            <p><strong>مبلغ پرداخت شده:</strong> {{ order.total_price }} تومان</p>
+            <p><strong>مبلغ سفارش:</strong> <span style="color: var(--ember); font-weight: 800;">{{ order.total_price|toman }}</span></p>
+            <p><strong>وضعیت کنونی:</strong> <span style="color: #4ade80; font-weight: 700;">{{ order.get_status_display }}</span></p>
         </div>
 
-        <a href="{% url 'shop:index' %}" class="btn btn-primary">ادامه خرید از فروشگاه</a>
-        <a href="{% url 'orders:track' %}" class="btn btn-outline" style="margin-right: 0.6rem;">
-            <i class="fa-solid fa-location-crosshairs"></i> پیگیری سفارش
-        </a>
+        <div style="display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'shop:index' %}" class="btn btn-outline">ادامه خرید از فروشگاه</a>
+            <a href="{% url 'orders:track' %}" class="btn btn-primary">
+                <i class="fa-solid fa-truck-fast"></i> پیگیری زنده سفارش
+            </a>
+        </div>
     </div>
 </section>
 {% endblock %}

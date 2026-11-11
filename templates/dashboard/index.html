@@ -3,32 +3,38 @@
 {% block title %}پنل مدیریت کافه | داشبورد اختصاصی{% endblock %}
 
 {% block content %}
-<section class="section" style="padding-top: 8rem;">
+<section class="section" style="padding-top: 8rem; padding-bottom: 5rem;">
     <div class="section-header">
         <div class="section-tag">سیستم مدیریت اختصاصی کافه</div>
-        <h2 class="section-title">پنل کنترل جامع سایت و فروشگاه</h2>
+        <h2 class="section-title">پنل کنترل جامع سایت، سفارشات و فروشگاه</h2>
     </div>
 
-    <!-- QUICK DASHBOARD LINKS -->
-    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem;">
+    <!-- دکمه‌های سریع دسترسی ادمین -->
+    <div style="display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem;">
         <a href="{% url 'dashboard:settings' %}" class="btn btn-primary">
-            <i class="fa-solid fa-palette"></i> تغییر دیزاین و رنگ سایت
+            <i class="fa-solid fa-credit-card"></i> تنظیمات درگاه کارت به کارت، نشان و دیزاین
+        </a>
+        <a href="/admin/core/cafemusic/" target="_blank" class="btn btn-outline" style="border-color: var(--ember); color: var(--ember-hi);">
+            <i class="fa-solid fa-music"></i> مدیریت پلی‌لیست موزیک کافه
+        </a>
+        <a href="{% url 'dashboard:orders' %}" class="btn btn-outline">
+            <i class="fa-solid fa-boxes-packing"></i> سفارشات و فیش‌های کارت به کارت
         </a>
         <a href="{% url 'dashboard:menu' %}" class="btn btn-outline">
-            <i class="fa-solid fa-list-check"></i> مدیریت منو و چیدمان
+            <i class="fa-solid fa-list-check"></i> مدیریت منو و قیمت‌ها
         </a>
         <a href="{% url 'dashboard:reservations' %}" class="btn btn-outline">
             <i class="fa-solid fa-calendar-days"></i> مدیریت رزروهای میز
         </a>
-        <a href="{% url 'dashboard:orders' %}" class="btn btn-outline">
-            <i class="fa-solid fa-boxes-packing"></i> پیگیری سفارشات فروشگاه
+        <a href="/admin/" target="_blank" class="btn btn-outline" style="background: rgba(255,255,255,0.06);">
+            <i class="fa-solid fa-shield-halved"></i> پنل ادمین اصلی (جزمین) <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem;"></i>
         </a>
     </div>
 
-    <!-- STATS CARDS GRID -->
+    <!-- کارت‌های آمار و گزارش -->
     <div class="grid">
         <div class="glass-card" style="text-align: center;">
-            <i class="fa-solid fa-cart-shopping" style="font-size: 2.5rem; color: var(--primary-glow); margin-bottom: 0.8rem;"></i>
+            <i class="fa-solid fa-cart-shopping" style="font-size: 2.5rem; color: var(--ember); margin-bottom: 0.8rem;"></i>
             <h3 style="font-size: 2rem; color: #FFF;">{{ total_orders }}</h3>
             <p style="color: var(--text-muted);">کل سفارشات ثبت شده</p>
         </div>
@@ -36,19 +42,19 @@
         <div class="glass-card" style="text-align: center;">
             <i class="fa-solid fa-clock-rotate-left" style="font-size: 2.5rem; color: #FFD54F; margin-bottom: 0.8rem;"></i>
             <h3 style="font-size: 2rem; color: #FFF;">{{ pending_orders }}</h3>
-            <p style="color: var(--text-muted);">سفارشات در انتظار پرداخت</p>
+            <p style="color: var(--text-muted);">سفارشات در انتظار بررسی فیش</p>
         </div>
 
         <div class="glass-card" style="text-align: center;">
-            <i class="fa-solid fa-calendar-check" style="font-size: 2.5rem; color: #81C784; margin-bottom: 0.8rem;"></i>
+            <i class="fa-solid fa-calendar-check" style="font-size: 2.5rem; color: #4ade80; margin-bottom: 0.8rem;"></i>
             <h3 style="font-size: 2rem; color: #FFF;">{{ total_reservations }}</h3>
             <p style="color: var(--text-muted);">کل رزروهای میز</p>
         </div>
 
         <div class="glass-card" style="text-align: center;">
-            <i class="fa-solid fa-mug-hot" style="font-size: 2.5rem; color: var(--primary-glow); margin-bottom: 0.8rem;"></i>
+            <i class="fa-solid fa-mug-hot" style="font-size: 2.5rem; color: var(--ember-hi); margin-bottom: 0.8rem;"></i>
             <h3 style="font-size: 2rem; color: #FFF;">{{ active_menu_items }} / {{ total_menu_items }}</h3>
-            <p style="color: var(--text-muted);">آیتم‌های فعال در منو</p>
+            <p style="color: var(--text-muted);">آیتم‌های فعال در منوی کافه</p>
         </div>
     </div>
 </section>

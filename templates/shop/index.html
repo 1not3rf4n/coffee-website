@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load coffee_tags %}
 
 {% block title %}فروشگاه آنلاین دانه‌های برشته قهوه | {{ site_settings.site_name }}{% endblock %}
 
@@ -43,9 +44,9 @@
 
             <div class="card-footer">
                 <div>
-                    <span class="card-price">{{ product.final_price }} تومان</span>
+                    <span class="card-price">{{ product.final_price|toman }}</span>
                     {% if product.discount_percent > 0 %}
-                    <span class="old-price">{{ product.price }}</span>
+                    <span class="old-price">{{ product.price|price_format }}</span>
                     {% endif %}
                 </div>
                 {% if product.stock > 0 %}

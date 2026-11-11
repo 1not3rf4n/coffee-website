@@ -165,9 +165,9 @@
         </ul>
 
         <div class="drawer-footer-info">
-            <p><i class="fa-solid fa-phone"></i> {{ site_settings.phone }}</p>
-            <p><i class="fa-brands fa-instagram"></i> {{ site_settings.instagram }}</p>
-            <p><i class="fa-solid fa-clock"></i> {{ site_settings.open_time }} الی {{ site_settings.close_time }}</p>
+            <p><a href="tel:{{ site_settings.clean_phone }}" style="color: inherit; text-decoration: none;"><i class="fa-solid fa-phone" style="color: var(--ember); margin-left: 6px;"></i> {{ site_settings.phone }}</a></p>
+            <p><a href="https://instagram.com/{{ site_settings.clean_instagram }}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;"><i class="fa-brands fa-instagram" style="color: var(--ember); margin-left: 6px;"></i> {{ site_settings.instagram }}</a></p>
+            <p><i class="fa-solid fa-clock" style="color: var(--ember); margin-left: 6px;"></i> {{ site_settings.open_time }} الی {{ site_settings.close_time }}</p>
         </div>
     </aside>
 
@@ -224,12 +224,28 @@
     </main>
 
     {% if site_settings.is_soundscape_active %}
-    <div class="soundscape-widget" id="soundscapeToggle" role="button" aria-label="پخش صدای آرامش‌بخش کافه">
-        <div class="sound-bars">
-            <span></span><span></span><span></span>
+    <!-- پلیر موزیک هوشمند و پیشرفته کافه (Autoplay & Shuffle) -->
+    <div class="cafe-music-player" id="cafeMusicPlayer" data-autoplay="{% if site_settings.soundscape_autoplay %}true{% else %}false{% endif %}">
+        <audio id="cafeAudioElement" preload="auto"></audio>
+        
+        <button type="button" class="music-toggle-btn" id="musicToggleBtn" title="پخش / توقف موزیک">
+            <i class="fa-solid fa-play" id="musicPlayIcon"></i>
+        </button>
+
+        <button type="button" class="music-next-btn" id="musicNextBtn" title="موزیک بعدی (Shuffle)">
+            <i class="fa-solid fa-forward-step"></i>
+        </button>
+
+        <div class="music-waves">
+            <span></span><span></span><span></span><span></span>
         </div>
-        <span class="sound-text">موزیک کافه</span>
+
+        <div class="music-info">
+            <span class="music-title" id="musicTitleDisplay">موزیک کافه</span>
+            <span class="music-artist" id="musicArtistDisplay">{{ site_settings.site_name }}</span>
+        </div>
     </div>
+    <script id="cafePlaylistData" type="application/json">{{ cafe_playlist_json|safe }}</script>
     {% endif %}
 
     <footer class="footer">
@@ -240,8 +256,10 @@
                     <span class="nav-logo-text">{{ site_settings.site_name }}</span>
                 </a>
                 <p>{{ site_settings.tagline }}</p>
-                <p style="margin-top: 0.8rem; font-weight: 700; color: var(--ember);">
-                    <i class="fa-brands fa-instagram"></i> {{ site_settings.instagram }}
+                <p style="margin-top: 0.8rem;">
+                    <a href="https://instagram.com/{{ site_settings.clean_instagram }}" target="_blank" rel="noopener noreferrer" style="color: var(--ember); text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fa-brands fa-instagram" style="font-size: 1.2rem;"></i> {{ site_settings.instagram }}
+                    </a>
                 </p>
             </div>
             <div class="footer-col">
@@ -263,8 +281,16 @@
             </div>
             <div class="footer-col">
                 <h4>تماس و آدرس کافه</h4>
-                <p><i class="fa-solid fa-location-dot" style="color: var(--ember); margin-left: 6px;"></i> {{ site_settings.address }}</p>
-                <p><i class="fa-solid fa-phone" style="color: var(--ember); margin-left: 6px;"></i> {{ site_settings.phone }}</p>
+                <p>
+                    <a href="{{ site_settings.neshan_url|default:'#' }}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;" title="مسیریابی در نشان">
+                        <i class="fa-solid fa-location-dot" style="color: var(--ember); margin-left: 6px;"></i> {{ site_settings.address }}
+                    </a>
+                </p>
+                <p>
+                    <a href="tel:{{ site_settings.clean_phone }}" style="color: inherit; text-decoration: none;" title="تماس مستقیم">
+                        <i class="fa-solid fa-phone" style="color: var(--ember); margin-left: 6px;"></i> {{ site_settings.phone }}
+                    </a>
+                </p>
                 <p><i class="fa-solid fa-clock" style="color: var(--ember); margin-left: 6px;"></i> {{ site_settings.open_time }} الی {{ site_settings.close_time }}</p>
             </div>
         </div>
