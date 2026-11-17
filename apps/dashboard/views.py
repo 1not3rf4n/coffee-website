@@ -131,6 +131,21 @@ def dashboard_menu_view(request):
             )
             messages.success(request, "آیتم جدید با موفقیت به منو اضافه شد.")
 
+        elif action == 'bulk_delete_items':
+            item_ids = request.POST.getlist('selected_items')
+            if item_ids:
+                deleted_count, _ = MenuItem.objects.filter(id__in=item_ids).delete()
+                messages.success(request, f"{deleted_count} آیتم با موفقیت از منو حذف شدند.")
+            else:
+                messages.warning(request, "هیچ آیتمی برای حذف انتخاب نشده است!")
+
+        elif action == 'delete_single_item':
+            item_id = request.POST.get('item_id')
+            item = get_object_or_404(MenuItem, id=item_id)
+            title = item.title
+            item.delete()
+            messages.success(request, f"آیتم «{title}» با موفقیت حذف شد.")
+
         return redirect('dashboard:menu')
 
     return render(request, 'dashboard/menu.html', {'categories': categories, 'items': items})

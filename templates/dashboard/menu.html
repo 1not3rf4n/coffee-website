@@ -1,94 +1,134 @@
 {% extends 'base.html' %}
+{% load coffee_tags %}
 
 {% block title %}مدیریت منو و چیدمان | پنل مدیریت{% endblock %}
 
 {% block content %}
-<section class="section" style="padding-top: 8rem;">
-    <div class="section-header">
+<section class="section" style="padding-top: 7.5rem; padding-bottom: 5rem;">
+    <div class="section-header" style="margin-bottom: 2rem;">
         <div class="section-tag">کنترل کامل منو</div>
-        <h2 class="section-title">ویرایش قیمت، تخفیف، اولویت و روشن/خاموش کردن آیتم‌ها</h2>
+        <h2 class="section-title">مدیریت قیمت‌ها، موجودی و حذف آیتم‌ها</h2>
     </div>
 
-    <!-- ADD NEW MENU ITEM FORM MODAL TRIGGER -->
-    <div style="text-align: center; margin-bottom: 2.5rem;">
-        <button onclick="document.getElementById('addItemModal').classList.add('open')" class="btn btn-primary">
+    <!-- نوار عملیات بالای جدول (افزودن و حذف چندتایی) -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; max-width: 1100px; margin: 0 auto 1.5rem auto;">
+        <button type="button" onclick="document.getElementById('addItemModal').classList.add('open')" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i> افزودن آیتم جدید به منو
+        </button>
+
+        <!-- فرم و دکمه حذف چندتایی -->
+        <button type="button" id="bulkDeleteBtn" class="btn btn-outline" style="border-color: #ef4444; color: #ef4444; display: none;">
+            <i class="fa-solid fa-trash-can"></i> حذف موارد انتخاب‌شده (<span id="selectedCount">0</span>)
         </button>
     </div>
 
-    <!-- MENU ITEMS TABLE -->
-    <div class="glass-card" style="overflow-x: auto; padding: 1.5rem;">
-        <table style="width: 100%; border-collapse: collapse; text-align: right; color: #FFF;">
-            <thead>
-                <tr style="border-bottom: 2px solid var(--border-glow); color: var(--primary-glow);">
-                    <th style="padding: 12px;">آیتم</th>
-                    <th style="padding: 12px;">دسته‌بندی</th>
-                    <th style="padding: 12px;">قیمت (تومان)</th>
-                    <th style="padding: 12px;">تخفیف (تومان)</th>
-                    <th style="padding: 12px;">چیدمان (اولویت)</th>
-                    <th style="padding: 12px;">وضعیت (موجود/ناموجود)</th>
-                    <th style="padding: 12px;">عملیات سریع</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in items %}
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-                    <td style="padding: 12px; font-weight: 700;">{{ item.title }}</td>
-                    <td style="padding: 12px; color: var(--text-muted);">{{ item.category.title }}</td>
-                    
-                    <form method="POST" action="{% url 'dashboard:menu' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="quick_edit_item">
-                        <input type="hidden" name="item_id" value="{{ item.id }}">
-                        
-                        <td style="padding: 12px;">
-                            <input type="number" name="price" value="{{ item.price }}" style="width: 100px; background: var(--bg-dark); border: 1px solid var(--border-color); color: #FFF; border-radius: 6px; padding: 4px 8px;">
-                        </td>
-                        <td style="padding: 12px;">
-                            <input type="number" name="discount_price" value="{{ item.discount_price }}" style="width: 100px; background: var(--bg-dark); border: 1px solid var(--border-color); color: #FFF; border-radius: 6px; padding: 4px 8px;">
-                        </td>
-                        <td style="padding: 12px;">
-                            <input type="number" name="display_order" value="{{ item.display_order }}" style="width: 60px; background: var(--bg-dark); border: 1px solid var(--border-color); color: #FFF; border-radius: 6px; padding: 4px 8px;">
-                        </td>
-                        <td style="padding: 12px;">
-                            {% if item.is_active %}
-                            <span style="background: rgba(76, 175, 80, 0.2); color: #81C784; padding: 4px 10px; border-radius: 50px; font-size: 0.8rem;">روشن / موجود</span>
-                            {% else %}
-                            <span style="background: rgba(239, 83, 80, 0.2); color: #EF5350; padding: 4px 10px; border-radius: 50px; font-size: 0.8rem;">خاموش / ناموجود</span>
-                            {% endif %}
-                        </td>
-                        <td style="padding: 12px; display: flex; gap: 8px;">
-                            <button type="submit" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem;">ذخیره</button>
-                    </form>
-                            
-                            <form method="POST" action="{% url 'dashboard:menu' %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="toggle_item">
-                                <input type="hidden" name="item_id" value="{{ item.id }}">
-                                <button type="submit" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.8rem;">
-                                    {% if item.is_active %}خاموش کن{% else %}روشن کن{% endif %}
-                                </button>
-                            </form>
-                        </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <form method="POST" action="{% url 'dashboard:menu' %}" id="bulkActionForm">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="bulk_delete_items">
 
-    <!-- ADD ITEM MODAL -->
+        <!-- چک باکس انتخاب همه -->
+        <div style="max-width: 1100px; margin: 0 auto 0.8rem auto; padding: 0.6rem 1rem; background: var(--surface-2); border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #FFF; font-weight: 700; font-size: 0.9rem;">
+                <input type="checkbox" id="selectAllCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
+                <span>انتخاب همه آیتم‌ها جهت حذف چندتایی</span>
+            </label>
+            <span style="font-size: 0.82rem; color: var(--text-muted);">کل آیتم‌ها: {{ items|length }} عدد</span>
+        </div>
+
+        <!-- لیست آیتم‌های منو -->
+        <div class="menu-dashboard-list" style="max-width: 1100px; margin: 0 auto;">
+            {% for item in items %}
+            <div class="glass-card menu-dash-card" style="margin-bottom: 0.8rem; padding: 1rem; border-color: rgba(255,255,255,0.08);">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                    
+                    <!-- سمت راست: چک‌باکس، عکس، نام و دسته‌بندی -->
+                    <div style="display: flex; align-items: center; gap: 12px; min-width: 220px;">
+                        <input type="checkbox" name="selected_items" value="{{ item.id }}" class="item-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
+                        
+                        <img src="{{ item.get_image_url }}" alt="{{ item.title }}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line);">
+                        
+                        <div>
+                            <strong style="color: #FFF; font-size: 1rem; display: block;">{{ item.title }}</strong>
+                            <span style="font-size: 0.8rem; color: var(--ember); background: rgba(240, 120, 46, 0.1); padding: 2px 8px; border-radius: 4px;">{{ item.category.title }}</span>
+                        </div>
+                    </div>
+
+                    <!-- بخش وسط: وضعیت موجودی -->
+                    <div>
+                        {% if item.is_active %}
+                        <span style="background: rgba(76, 175, 80, 0.2); color: #81C784; padding: 4px 10px; border-radius: 50px; font-size: 0.78rem; font-weight: 700;">روشن / موجود</span>
+                        {% else %}
+                        <span style="background: rgba(239, 83, 80, 0.2); color: #EF5350; padding: 4px 10px; border-radius: 50px; font-size: 0.78rem; font-weight: 700;">خاموش / ناموجود</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- بخش چپ: فرم‌های تک‌عملیات (قیمت، تاگل و حذف تکی) -->
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <!-- فرم ویرایش قیمت و اولویت -->
+                        <div style="display: inline-flex; align-items: center; gap: 6px;">
+                            <input type="number" form="editForm_{{ item.id }}" name="price" value="{{ item.price }}" title="قیمت (تومان)" style="width: 90px; background: var(--surface-2); border: 1px solid var(--line); color: #FFF; border-radius: 6px; padding: 4px 8px; font-size: 0.85rem;">
+                            <button type="submit" form="editForm_{{ item.id }}" class="btn btn-outline btn-sm" style="padding: 4px 8px;" title="ذخیره قیمت">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                            </button>
+                        </div>
+
+                        <!-- دکمه روشن/خاموش -->
+                        <button type="submit" form="toggleForm_{{ item.id }}" class="btn btn-outline btn-sm" style="padding: 4px 10px; font-size: 0.8rem; {% if item.is_active %}border-color: #ef4444; color: #ef4444;{% else %}border-color: #4ade80; color: #4ade80;{% endif %}">
+                            {% if item.is_active %}خاموش{% else %}روشن{% endif %}
+                        </button>
+
+                        <!-- دکمه حذف تکی -->
+                        <button type="submit" form="deleteForm_{{ item.id }}" onclick="return confirm('آیا از حذف آیتم «{{ item.title }}» مطمئن هستید؟');" class="btn btn-outline btn-sm" style="border-color: rgba(239, 68, 68, 0.3); color: #ef4444; padding: 4px 8px;" title="حذف آیتم">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+            {% empty %}
+            <div class="glass-card" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                هنوز هیچ آیتمی در منو ثبت نشده است.
+            </div>
+            {% endfor %}
+        </div>
+    </form>
+
+    <!-- فرم‌های مخفی مستقل برای جلوگیری از تداخل ساختار HTML -->
+    {% for item in items %}
+    <form id="editForm_{{ item.id }}" method="POST" action="{% url 'dashboard:menu' %}" style="display: none;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="quick_edit_item">
+        <input type="hidden" name="item_id" value="{{ item.id }}">
+        <input type="hidden" name="discount_price" value="{{ item.discount_price }}">
+        <input type="hidden" name="display_order" value="{{ item.display_order }}">
+    </form>
+    <form id="toggleForm_{{ item.id }}" method="POST" action="{% url 'dashboard:menu' %}" style="display: none;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="toggle_item">
+        <input type="hidden" name="item_id" value="{{ item.id }}">
+    </form>
+    <form id="deleteForm_{{ item.id }}" method="POST" action="{% url 'dashboard:menu' %}" style="display: none;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete_single_item">
+        <input type="hidden" name="item_id" value="{{ item.id }}">
+    </form>
+    {% endfor %}
+
+    <!-- مدال افزودن آیتم جدید -->
     <div class="modal" id="addItemModal">
-        <div class="modal-content" style="max-width: 550px; text-align: right;">
-            <span class="close-modal" onclick="document.getElementById('addItemModal').classList.remove('open')">&times;</span>
-            <h3 style="color: var(--primary-glow); margin-bottom: 1.5rem;">افزودن آیتم جدید به منو</h3>
+        <div class="modal-content" style="max-width: 520px; text-align: right; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="color: var(--ember); margin: 0; font-size: 1.2rem;">افزودن آیتم جدید به منو</h3>
+                <span style="font-size: 1.6rem; cursor: pointer; color: var(--text-muted);" onclick="document.getElementById('addItemModal').classList.remove('open')">&times;</span>
+            </div>
 
             <form method="POST" action="{% url 'dashboard:menu' %}">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="add_item">
 
                 <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: 700; margin-bottom: 0.4rem;">دسته‌بندی:</label>
-                    <select name="category_id" required style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; color: #FFF;">
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;">دسته‌بندی:</label>
+                    <select name="category_id" required style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem; color: #FFF;">
                         {% for cat in categories %}
                         <option value="{{ cat.id }}">{{ cat.title }}</option>
                         {% endfor %}
@@ -96,44 +136,87 @@
                 </div>
 
                 <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: 700; margin-bottom: 0.4rem;">نام آیتم:</label>
-                    <input type="text" name="title" required placeholder="مثال: کاپوچینو کارامل" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; color: #FFF;">
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;">نام آیتم:</label>
+                    <input type="text" name="title" required placeholder="مثال: کاپوچینو کارامل" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem; color: #FFF;">
                 </div>
 
                 <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: 700; margin-bottom: 0.4rem;">توضیحات و ترکیبات:</label>
-                    <textarea name="description" rows="2" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; color: #FFF;"></textarea>
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;">توضیحات کوتاه:</label>
+                    <textarea name="description" rows="2" placeholder="توضیحات کوتاه آیتم منو..." style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem; color: #FFF;"></textarea>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                     <div>
-                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem;">قیمت (تومان):</label>
-                        <input type="number" name="price" required value="65000" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; color: #FFF;">
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;">قیمت (تومان):</label>
+                        <input type="number" name="price" required value="75000" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem; color: #FFF;">
                     </div>
                     <div>
-                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem;">مبلغ تخفیف (تومان):</label>
-                        <input type="number" name="discount_price" value="0" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; color: #FFF;">
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                    <div>
-                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem;">نشان اختصاصی:</label>
-                        <input type="text" name="badge_text" placeholder="ویژه باریستا، داغ..." style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; color: #FFF;">
-                    </div>
-                    <div>
-                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem;">نوع سرو:</label>
-                        <select name="temperature" style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem; color: #FFF;">
-                            <option value="hot">☕ گرم</option>
-                            <option value="cold">🧊 سرد</option>
-                            <option value="neutral">🍽️ خوراکی</option>
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;">نوع سرو:</label>
+                        <select name="temperature" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem; color: #FFF;">
+                            <option value="hot">☕ سرو گرم</option>
+                            <option value="cold">🧊 سرو سرد</option>
+                            <option value="food">🍽️ خوراکی / کیک</option>
                         </select>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">ثبت و افزودن به منو</button>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.9rem;">بج یا برچسب ویژه (اختیاری):</label>
+                    <input type="text" name="badge_text" placeholder="مثال: پیشنهاد باریستا، پرطرفدار" style="width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem; color: #FFF;">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1.05rem;">
+                    <i class="fa-solid fa-plus"></i> ذخیره و افزودن به منو
+                </button>
             </form>
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // اسکریپت انتخاب همه و نمایش دکمه حذف چندتایی
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const bulkActionForm = document.getElementById('bulkActionForm');
+
+    function updateBulkDeleteState() {
+        const checkedCount = document.querySelectorAll('.item-checkbox:checked').length;
+        selectedCountSpan.textContent = checkedCount;
+        if (checkedCount > 0) {
+            bulkDeleteBtn.style.display = 'inline-flex';
+        } else {
+            bulkDeleteBtn.style.display = 'none';
+        }
+    }
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', () => {
+            itemCheckboxes.forEach(cb => {
+                cb.checked = selectAllCheckbox.checked;
+            });
+            updateBulkDeleteState();
+        });
+    }
+
+    itemCheckboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            if (!cb.checked && selectAllCheckbox) selectAllCheckbox.checked = false;
+            updateBulkDeleteState();
+        });
+    });
+
+    if (bulkDeleteBtn && bulkActionForm) {
+        bulkDeleteBtn.addEventListener('click', () => {
+            const count = document.querySelectorAll('.item-checkbox:checked').length;
+            if (count === 0) return;
+            if (confirm(`آیا از حذف ${count} آیتم انتخاب‌شده مطمئن هستید؟ این عملیات غیرقابل بازگشت است.`)) {
+                bulkActionForm.submit();
+            }
+        });
+    }
+</script>
 {% endblock %}

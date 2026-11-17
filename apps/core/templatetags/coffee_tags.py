@@ -46,3 +46,4 @@ def clean_insta(value):
     if 'instagram.com/' in val:
         val = val.split('instagram.com/')[-1].split('/')[0].split('?')[0]
     return val.lstrip('@')
+

@@ -3,68 +3,74 @@
 {% block title %}مدیریت رزروهای میز | پنل مدیریت{% endblock %}
 
 {% block content %}
-<section class="section" style="padding-top: 8rem;">
-    <div class="section-header">
+<section class="section" style="padding-top: 7.5rem; padding-bottom: 5rem;">
+    <div class="section-header" style="margin-bottom: 2rem;">
         <div class="section-tag">رزروها</div>
         <h2 class="section-title">لیست کامل رزروهای میز مشتریان</h2>
     </div>
 
-    <div class="glass-card" style="overflow-x: auto; padding: 1.5rem;">
-        <table style="width: 100%; border-collapse: collapse; text-align: right; color: #FFF;">
-            <thead>
-                <tr style="border-bottom: 2px solid var(--border-glow); color: var(--primary-glow);">
-                    <th style="padding: 12px;">نام مشتری</th>
-                    <th style="padding: 12px;">تلفن</th>
-                    <th style="padding: 12px;">تاریخ و ساعت</th>
-                    <th style="padding: 12px;">تعداد نفرات</th>
-                    <th style="padding: 12px;">میز</th>
-                    <th style="padding: 12px;">وضعیت بیعانه</th>
-                    <th style="padding: 12px;">وضعیت رزرو</th>
-                    <th style="padding: 12px;">تغییر وضعیت</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for res in reservations %}
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-                    <td style="padding: 12px; font-weight: 700;">{{ res.full_name }}</td>
-                    <td style="padding: 12px; color: var(--text-muted);">{{ res.phone }}</td>
-                    <td style="padding: 12px;">{{ res.date }} - {{ res.time }}</td>
-                    <td style="padding: 12px;">{{ res.guests_count }} نفر</td>
-                    <td style="padding: 12px;">{{ res.table_number|default:"تعیین نشده" }}</td>
-                    <td style="padding: 12px;">
-                        {% if res.require_deposit %}
-                            {% if res.deposit_paid %}
-                            <span style="color: #81C784; font-weight: 700;">پرداخت شد ({{ res.deposit_amount }} تومان)</span>
-                            {% else %}
-                            <span style="color: #EF5350; font-weight: 700;">در انتظار پرداخت</span>
-                            {% endif %}
+    <div style="max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 0.8rem;">
+        {% for res in reservations %}
+        <div class="glass-card" style="padding: 1.2rem; border-color: rgba(255,255,255,0.08);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                
+                <!-- اطلاعات مشتری و زمان -->
+                <div style="min-width: 220px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <i class="fa-solid fa-chair" style="color: var(--ember);"></i>
+                        <strong style="color: #FFF; font-size: 1.05rem;">{{ res.full_name }}</strong>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">({{ res.guests_count }} نفر{% if res.table_number %} - میز {{ res.table_number }}{% endif %})</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 12px; flex-wrap: wrap;">
+                        <span><i class="fa-solid fa-calendar-day" style="color: var(--ember-hi); margin-left: 4px;"></i> {{ res.date }}</span>
+                        <span><i class="fa-solid fa-clock" style="color: var(--ember-hi); margin-left: 4px;"></i> {{ res.time }}</span>
+                        <a href="tel:{{ res.phone }}" style="color: #4ade80; text-decoration: none; direction: ltr;"><i class="fa-solid fa-phone" style="margin-left: 4px;"></i> {{ res.phone }}</a>
+                    </div>
+                    {% if res.special_request %}
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 6px 0 0 0; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 6px;">
+                        درخواست: {{ res.special_request }}
+                    </p>
+                    {% endif %}
+                </div>
+
+                <!-- وضعیت بیعانه -->
+                <div>
+                    {% if res.require_deposit %}
+                        {% if res.deposit_paid %}
+                        <span style="background: rgba(46,125,50,0.2); color: #4ade80; border: 1px solid #4ade80; padding: 4px 10px; border-radius: 50px; font-size: 0.78rem; font-weight: 700;">
+                            بیعانه پرداخت شد ({{ res.deposit_amount }} ت)
+                        </span>
                         {% else %}
-                        <span style="color: var(--text-muted);">رایگان</span>
+                        <span style="background: rgba(239,83,80,0.2); color: #EF5350; border: 1px solid #EF5350; padding: 4px 10px; border-radius: 50px; font-size: 0.78rem; font-weight: 700;">
+                            در انتظار بیعانه ({{ res.deposit_amount }} ت)
+                        </span>
                         {% endif %}
-                    </td>
-                    <td style="padding: 12px;">
-                        <span style="font-weight: 700;">{{ res.get_status_display }}</span>
-                    </td>
-                    <td style="padding: 12px;">
-                        <form method="POST" action="{% url 'dashboard:reservations' %}" style="display: flex; gap: 6px;">
-                            {% csrf_token %}
-                            <input type="hidden" name="reservation_id" value="{{ res.id }}">
-                            <select name="status" style="background: var(--bg-dark); border: 1px solid var(--border-color); color: #FFF; border-radius: 6px; padding: 4px;">
-                                <option value="pending" {% if res.status == 'pending' %}selected{% endif %}>در انتظار تایید</option>
-                                <option value="confirmed" {% if res.status == 'confirmed' %}selected{% endif %}>تایید شده</option>
-                                <option value="cancelled" {% if res.status == 'cancelled' %}selected{% endif %}>لغو شده</option>
-                            </select>
-                            <button type="submit" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem;">بروزرسانی</button>
-                        </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">هنوز هیچ رزروی ثبت نشده است.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    {% else %}
+                    <span style="color: var(--text-muted); font-size: 0.82rem;">رزرو رایگان</span>
+                    {% endif %}
+                </div>
+
+                <!-- وضعیت کنونی و دکمه تغییر وضعیت -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <form method="POST" action="{% url 'dashboard:reservations' %}" style="display: flex; gap: 6px; align-items: center;">
+                        {% csrf_token %}
+                        <input type="hidden" name="reservation_id" value="{{ res.id }}">
+                        <select name="status" style="background: var(--surface-2); border: 1px solid var(--line); color: #FFF; border-radius: 6px; padding: 6px; font-size: 0.85rem;">
+                            <option value="pending" {% if res.status == 'pending' %}selected{% endif %}>در انتظار تایید</option>
+                            <option value="confirmed" {% if res.status == 'confirmed' %}selected{% endif %}>تایید شده</option>
+                            <option value="cancelled" {% if res.status == 'cancelled' %}selected{% endif %}>لغو شده</option>
+                        </select>
+                        <button type="submit" class="btn btn-outline btn-sm" style="padding: 6px 10px; font-size: 0.82rem;">بروزرسانی</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+        {% empty %}
+        <div class="glass-card" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+            هنوز هیچ درخواستی برای رزرو میز ثبت نشده است.
+        </div>
+        {% endfor %}
     </div>
 </section>
 {% endblock %}

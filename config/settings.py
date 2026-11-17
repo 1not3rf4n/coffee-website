@@ -23,6 +23,10 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
+    'https://erfancafe.ir',
+    'https://*.erfancafe.ir',
+    'http://erfancafe.ir',
+    'http://*.erfancafe.ir',
     'https://*.railway.app',
     'https://*.up.railway.app',
     'https://*.htempurl.com',

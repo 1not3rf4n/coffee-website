@@ -116,12 +116,12 @@
 
     if (grid2ColBtn && grid1ColBtn && menuGrid) {
         grid1ColBtn.addEventListener('click', () => {
-            menuGrid.style.gridTemplateColumns = '1fr';
+            menuGrid.style.setProperty('grid-template-columns', '1fr', 'important');
             grid1ColBtn.classList.add('active');
             grid2ColBtn.classList.remove('active');
         });
         grid2ColBtn.addEventListener('click', () => {
-            menuGrid.style.gridTemplateColumns = '';
+            menuGrid.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
             grid2ColBtn.classList.add('active');
             grid1ColBtn.classList.remove('active');
         });

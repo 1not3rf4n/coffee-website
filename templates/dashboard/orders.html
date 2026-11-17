@@ -4,104 +4,102 @@
 {% block title %}مدیریت سفارشات و فیش‌های کارت به کارت | پنل مدیریت{% endblock %}
 
 {% block content %}
-<section class="section" style="padding-top: 8rem; padding-bottom: 5rem;">
-    <div class="section-header">
+<section class="section" style="padding-top: 7.5rem; padding-bottom: 5rem;">
+    <div class="section-header" style="margin-bottom: 2rem;">
         <div class="section-tag">سفارشات و تراکنش‌ها</div>
         <h2 class="section-title">بررسی سفارشات آنلاین و تأیید فیش‌های کارت به کارت</h2>
     </div>
 
-    <div class="glass-card" style="overflow-x: auto; padding: 1.5rem;">
-        <table style="width: 100%; border-collapse: collapse; text-align: right; color: #FFF; min-width: 850px;">
-            <thead>
-                <tr style="border-bottom: 2px solid var(--line); color: var(--ember-hi); font-size: 0.92rem;">
-                    <th style="padding: 12px;">سفارش</th>
-                    <th style="padding: 12px;">خریدار و تماس</th>
-                    <th style="padding: 12px;">مبلغ کل</th>
-                    <th style="padding: 12px;">فیش واریز</th>
-                    <th style="padding: 12px;">کد پیگیری</th>
-                    <th style="padding: 12px;">وضعیت کنونی</th>
-                    <th style="padding: 12px;">عملیات مدیر</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
-                    <td style="padding: 12px; font-weight: 800; color: var(--ember); font-family: monospace;">
-                        {{ order.order_number }}
-                    </td>
-                    <td style="padding: 12px;">
-                        <strong style="color: #FFF; display: block;">{{ order.full_name }}</strong>
-                        <a href="tel:{{ order.phone }}" style="font-size: 0.85rem; color: #4ade80; text-decoration: none; direction: ltr; display: inline-block;">{{ order.phone }}</a>
-                        <span style="font-size: 0.8rem; color: var(--text-muted); display: block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ order.address }}</span>
-                    </td>
-                    <td style="padding: 12px; font-weight: 800; color: var(--ember-hi); white-space: nowrap;">
-                        {{ order.total_price|toman }}
-                    </td>
-                    <td style="padding: 12px;">
-                        {% if order.receipt_image %}
-                        <a href="{{ order.receipt_image.url }}" target="_blank" title="مشاهده فیش واریز در اندازه بزرگ">
-                            <img src="{{ order.receipt_image.url }}" alt="فیش" style="width: 46px; height: 46px; object-fit: cover; border-radius: 8px; border: 2px solid var(--ember); box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+    <div style="max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 0.8rem;">
+        {% for order in orders %}
+        <div class="glass-card" style="padding: 1.2rem; border-color: rgba(255,255,255,0.08);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                
+                <!-- سمت راست: شماره سفارش، نام خریدار و تماس -->
+                <div style="min-width: 220px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <span style="font-weight: 800; color: var(--ember); font-family: monospace; font-size: 1.05rem;">{{ order.order_number }}</span>
+                        <strong style="color: #FFF; font-size: 1rem;">{{ order.full_name }}</strong>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 12px; flex-wrap: wrap;">
+                        <a href="tel:{{ order.phone }}" style="color: #4ade80; text-decoration: none; direction: ltr;"><i class="fa-solid fa-phone" style="margin-left: 4px;"></i> {{ order.phone }}</a>
+                        <span>مبلغ: <strong style="color: var(--ember-hi);">{{ order.total_price|toman }}</strong></span>
+                    </div>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 4px;">{{ order.address }}</span>
+                </div>
+
+                <!-- وسط: تصویر فیش واریز -->
+                <div>
+                    {% if order.receipt_image %}
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <a href="{{ order.receipt_image.url }}" target="_blank" title="مشاهده فیش در اندازه بزرگ">
+                            <img src="{{ order.receipt_image.url }}" alt="فیش" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 2px solid var(--ember);">
                         </a>
-                        {% if order.card_last_digits %}
-                        <span style="display: block; font-size: 0.75rem; color: var(--text-muted); font-family: monospace;">۴ رقم: {{ order.card_last_digits }}</span>
-                        {% endif %}
-                        {% else %}
-                        <span style="color: var(--text-muted); font-size: 0.8rem;">بدون فیش</span>
-                        {% endif %}
-                    </td>
-                    <td style="padding: 12px; font-family: monospace; font-size: 0.85rem;">
-                        {{ order.tracking_code|default:"-" }}
-                    </td>
-                    <td style="padding: 12px;">
-                        {% if order.status == 'awaiting_approval' %}
-                        <span style="background: #F57C00; color: #FFF; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; display: inline-block; animation: pulse 1.5s infinite;">
-                            بررسی فیش
-                        </span>
-                        {% elif order.status == 'paid' %}
-                        <span style="background: #2E7D32; color: #FFF; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;">
-                            تأیید شده
-                        </span>
-                        {% elif order.status == 'processing' %}
-                        <span style="background: #0288D1; color: #FFF; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;">
-                            در حال برشته‌کاری
-                        </span>
-                        {% elif order.status == 'shipped' %}
-                        <span style="background: #7B1FA2; color: #FFF; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;">
-                            ارسال شده
-                        </span>
-                        {% elif order.status == 'cancelled' %}
-                        <span style="background: #C62828; color: #FFF; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;">
-                            لغو / رد شده
-                        </span>
-                        {% else %}
-                        <span style="background: #757575; color: #FFF; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;">
-                            در انتظار پرداخت
-                        </span>
-                        {% endif %}
-                    </td>
-                    <td style="padding: 12px;">
-                        <form method="POST" action="{% url 'dashboard:orders' %}" style="display: flex; gap: 6px; align-items: center;">
-                            {% csrf_token %}
-                            <input type="hidden" name="order_id" value="{{ order.id }}">
-                            <select name="status" style="background: var(--surface-2); border: 1px solid var(--line); color: #FFF; border-radius: 6px; padding: 6px; font-size: 0.85rem;">
-                                <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>در انتظار پرداخت</option>
-                                <option value="awaiting_approval" {% if order.status == 'awaiting_approval' %}selected{% endif %}>فیش ارسال شده (بررسی)</option>
-                                <option value="paid" {% if order.status == 'paid' %}selected{% endif %}>✓ تأیید فیش و پرداخت</option>
-                                <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>در حال پردازش / آماده‌سازی</option>
-                                <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>ارسال شده / تحویل پیک</option>
-                                <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>✗ رد فیش و لغو</option>
-                            </select>
-                            <button type="submit" class="btn btn-outline btn-sm" style="padding: 6px 12px; font-size: 0.82rem;">ثبت</button>
-                        </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3rem;">هنوز هیچ سفارشی ثبت نشده است.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">
+                            <span>فیش ارسالی</span>
+                            {% if order.card_last_digits %}
+                            <span style="display: block; color: #FFF; font-family: monospace;">کارت: {{ order.card_last_digits }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <span style="color: var(--text-muted); font-size: 0.82rem;">بدون فیش</span>
+                    {% endif %}
+                </div>
+
+                <!-- وضعیت سفارش -->
+                <div>
+                    {% if order.status == 'awaiting_approval' %}
+                    <span style="background: #F57C00; color: #FFF; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; display: inline-block; animation: pulse 1.5s infinite;">
+                        بررسی فیش
+                    </span>
+                    {% elif order.status == 'paid' %}
+                    <span style="background: #2E7D32; color: #FFF; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;">
+                        تأیید شده
+                    </span>
+                    {% elif order.status == 'processing' %}
+                    <span style="background: #0288D1; color: #FFF; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;">
+                        در حال برشته‌کاری
+                    </span>
+                    {% elif order.status == 'shipped' %}
+                    <span style="background: #7B1FA2; color: #FFF; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;">
+                        ارسال شده
+                    </span>
+                    {% elif order.status == 'cancelled' %}
+                    <span style="background: #C62828; color: #FFF; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;">
+                        لغو شده
+                    </span>
+                    {% else %}
+                    <span style="background: #757575; color: #FFF; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;">
+                        در انتظار پرداخت
+                    </span>
+                    {% endif %}
+                </div>
+
+                <!-- فرم تغییر وضعیت -->
+                <div>
+                    <form method="POST" action="{% url 'dashboard:orders' %}" style="display: flex; gap: 6px; align-items: center;">
+                        {% csrf_token %}
+                        <input type="hidden" name="order_id" value="{{ order.id }}">
+                        <select name="status" style="background: var(--surface-2); border: 1px solid var(--line); color: #FFF; border-radius: 6px; padding: 6px; font-size: 0.85rem;">
+                            <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>در انتظار پرداخت</option>
+                            <option value="awaiting_approval" {% if order.status == 'awaiting_approval' %}selected{% endif %}>فیش ارسال شده (بررسی)</option>
+                            <option value="paid" {% if order.status == 'paid' %}selected{% endif %}>✓ تأیید فیش و پرداخت</option>
+                            <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>در حال پردازش / آماده‌سازی</option>
+                            <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>ارسال شده / تحویل پیک</option>
+                            <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>✗ رد فیش و لغو</option>
+                        </select>
+                        <button type="submit" class="btn btn-outline btn-sm" style="padding: 6px 12px; font-size: 0.82rem;">ثبت</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+        {% empty %}
+        <div class="glass-card" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+            هنوز هیچ سفارشی ثبت نشده است.
+        </div>
+        {% endfor %}
     </div>
 </section>
 {% endblock %}
